@@ -22,7 +22,12 @@ data class MuezzinProgress(
     val finished: Boolean = false,
 )
 
+/**
+ * @property tesbihatHandoff Tesbihat Tesbih ekranına devredildi ve müezzin akışına dönülmedi;
+ * Tesbih ekranı bu sürede "Müezzin akışına dön" düğmesini gösterir.
+ */
 data class MuezzinSaved(
     val preferences: MuezzinPreferences = MuezzinPreferences(),
     val progress: MuezzinProgress? = null,
+    val tesbihatHandoff: Boolean = false,
 )

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.TextAutoSize
@@ -77,6 +78,7 @@ fun CounterRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val settings by viewModel.settings.collectAsState()
+    val muezzinReturn by viewModel.muezzinReturn.collectAsState()
     var dimmed by rememberSaveable { mutableStateOf(false) }
 
     // Karartma ayardan bağımsız olarak ekranı açık tutar; kapanırsa sayım yarıda kalır.
@@ -103,6 +105,7 @@ fun CounterRoute(
             onOpenHistory = onOpenHistory,
             onOpenSettings = onOpenSettings,
             onOpenMuezzin = onOpenMuezzin,
+            showMuezzinReturn = muezzinReturn,
         )
         if (dimmed) {
             DimOverlay(onTap = viewModel::onTap, onExit = { dimmed = false })
@@ -124,8 +127,23 @@ fun CounterScreen(
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenMuezzin: () -> Unit,
+    /** Tesbihat müezzin akışından devredildiyse alttaki dönüş düğmesi görünür. */
+    showMuezzinReturn: Boolean = false,
 ) {
     Scaffold(
+        bottomBar = {
+            if (showMuezzinReturn) {
+                Button(
+                    onClick = onOpenMuezzin,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    Text(stringResource(R.string.muezzin_return))
+                }
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },

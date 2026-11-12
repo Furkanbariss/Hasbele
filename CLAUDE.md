@@ -202,7 +202,7 @@ Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ek
 | --- | --- | --- |
 | Tesbih (başlangıç) | Boncuklar, büyük sayı, adımın Arapçası ve okunuşu, adım göstergesi (1/3), geri al, sıfırla, karartma düğmesi | Yok |
 | Zikirler | En üstte "Namaz sonrası tesbihat", altında hazır ve kendi zikirlerin; ekle, düzenle, sil (hazırlar hariç) | Yok |
-| Müezzinlik (üst bardaki minare ikonu) | Vakit listesi, teşrik ve bayram sabahı seçenekleri; seçilen vaktin adım adım akışı (yönlendirme, Arapça, okunuş, meal, kaynak; İleri/Geri). Yarıda kalan akış açılışta kalınan adımdan sürer | Yok |
+| Müezzinlik (üst bardaki minare ikonu) | Vakit listesi, teşrik ve bayram sabahı seçenekleri; seçilen vaktin adım adım akışı (yönlendirme, Arapça, okunuş, meal, kaynak; İleri/Geri). Yarıda kalan akış açılışta kalınan adımdan sürer. Tesbihat adımındaki "Tesbihatı say" Tesbih ekranını tesbihatla sıfırdan açar (`requestSteps(..., restart = true)`); devir sürdükçe Tesbih ekranının altında "Müezzin akışına dön" görünür, tesbihat bittiyse akış sonraki adımdan sürer | Yok |
 | Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Banner |
 | Ayarlar | Ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster, gizlilik seçenekleri, gizlilik politikası, uygulamayı değerlendir, hakkında | Banner |
 
@@ -225,7 +225,7 @@ Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ek
 
 **Ses tuşları (`VolumeKeyDispatcher`)**
 
-- Ayar açıkken ve Tesbih ekranı görünürken Ses Açma = `Tap`, Ses Kısma = `Undo`.
+- Ayar açıkken ve Tesbih ekranı görünürken Ses Açma = `Tap`, Ses Kısma = `Undo`. Müezzin akışı görünürken Ses Açma = İleri, Ses Kısma = Geri.
 - `MainActivity.onKeyDown` ve `onKeyUp` olayı `VolumeKeyDispatcher`'a iletir (`dispatchKeyEvent` `ComponentActivity`'de kısıtlı API'dir). `CounterRoute` görünürken `DisposableEffect` ile kayıt olur, ekrandan çıkınca kaydı siler.
 - Kayıtlı dinleyici yoksa olay sisteme bırakılır, normal ses ayarı çalışır.
 - Basılı tutmada tekrarlanan olaylar (`repeatCount > 0`) sayılmaz.

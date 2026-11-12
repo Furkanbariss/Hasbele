@@ -36,9 +36,20 @@ class SessionRepository(
         return withContext(ioDispatcher) { store.read() }
     }
 
-    fun requestSteps(steps: List<TesbihatStep>) {
+    @Volatile
+    private var restartRequested = false
+
+    /**
+     * [restart] true ise aynı adımlar sürmekte olsa da sayım sıfırdan başlar; müezzin akışında her
+     * namazın tesbihatı ayrı sayılır. Zikirler ekranından gelen seçimde sürmekte olan sayım korunur.
+     */
+    fun requestSteps(steps: List<TesbihatStep>, restart: Boolean = false) {
+        restartRequested = restart
         _requestedSteps.value = steps
     }
+
+    /** İsteğin sıfırdan başlatma isteyip istemediğini döner ve bilgiyi siler. */
+    fun takeRestartRequest(): Boolean = restartRequested.also { restartRequested = false }
 
     fun clearRequestedSteps() {
         _requestedSteps.value = null

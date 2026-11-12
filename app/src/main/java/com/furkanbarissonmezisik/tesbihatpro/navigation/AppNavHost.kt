@@ -37,7 +37,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             )
         }
         composable(Routes.MUEZZIN) {
-            MuezzinRoute(onBack = { navController.navigateUp() })
+            MuezzinRoute(
+                onBack = { navController.navigateUp() },
+                // Tesbih ekranı her zaman yığının dibindedir; tesbihat orada sayılır.
+                onOpenCounter = { navController.popBackStack(Routes.COUNTER, inclusive = false) },
+            )
         }
         composable(Routes.ZIKIRS) {
             ZikirListRoute(onBack = { navController.navigateUp() })

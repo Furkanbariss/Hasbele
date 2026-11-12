@@ -89,6 +89,9 @@
     <string name="muezzin_finish">Bitir</string>
     <string name="muezzin_finished">%1$s tamamlandı</string>
     <string name="muezzin_back_to_list">Vakitlere dön</string>
+    <string name="muezzin_count_tesbihat">Tesbihatı say</string>
+    <string name="muezzin_count_tesbihat_hint">Tesbih sayacı sıfırdan açılır. Bitince oradan akışa dönersin.</string>
+    <string name="muezzin_return">Müezzin akışına dön</string>
     <string name="prayer_sabah">Sabah</string>
     <string name="prayer_ogle">Öğle</string>
     <string name="prayer_ikindi">İkindi</string>

@@ -94,6 +94,9 @@
     <string name="muezzin_finish">Finish</string>
     <string name="muezzin_finished">%1$s is complete</string>
     <string name="muezzin_back_to_list">Back to prayers</string>
+    <string name="muezzin_count_tesbihat">Count the tesbihat</string>
+    <string name="muezzin_count_tesbihat_hint">The tesbih counter opens from zero. When you finish, return to the flow from there.</string>
+    <string name="muezzin_return">Back to the muezzin flow</string>
     <string name="prayer_sabah">Fajr</string>
     <string name="prayer_ogle">Dhuhr</string>
     <string name="prayer_ikindi">Asr</string>

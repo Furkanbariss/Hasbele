@@ -1,6 +1,14 @@
 package com.furkanbarissonmezisik.tesbihatpro.feature.muezzin
 
+import android.view.KeyEvent
+import com.furkanbarissonmezisik.tesbihatpro.core.content.PresetContent
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.MuezzinRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SessionRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SettingsRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.CounterState
+import com.furkanbarissonmezisik.tesbihatpro.core.input.VolumeKeyDispatcher
+import com.furkanbarissonmezisik.tesbihatpro.testing.FakeSessionStore
+import com.furkanbarissonmezisik.tesbihatpro.testing.FakeSettingsStore
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.MuezzinPreferences
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.MuezzinProgress
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.MuezzinSaved
@@ -40,12 +48,93 @@ class MuezzinViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
+    private val counterStore = FakeSessionStore()
+    private val volumeKeys = VolumeKeyDispatcher()
+    private lateinit var sessionRepository: SessionRepository
+
     private fun TestScope.viewModel(today: LocalDate = monday): MuezzinViewModel {
         val repository = MuezzinRepository(store, backgroundScope, mainDispatcher)
-        val viewModel = MuezzinViewModel(repository) { today }
+        sessionRepository = SessionRepository(counterStore, backgroundScope, mainDispatcher)
+        val viewModel = MuezzinViewModel(
+            repository = repository,
+            sessionRepository = sessionRepository,
+            settingsRepository = SettingsRepository(FakeSettingsStore(), backgroundScope),
+            volumeKeys = volumeKeys,
+            today = { today },
+        )
         runCurrent()
         return viewModel
     }
+
+    private val ogleTesbihat = MuezzinProgress(PrayerFlowId.OGLE, "tesbihat")
+
+    @Test
+    fun `counting the tesbihat hands it to the counter from zero`() = runTest(mainDispatcher) {
+        store.stored = MuezzinSaved(progress = ogleTesbihat)
+        val viewModel = viewModel()
+
+        viewModel.onCountTesbihat()
+        runCurrent()
+
+        assertTrue(store.stored.tesbihatHandoff)
+        assertEquals(PresetContent.defaultTesbihat, sessionRepository.requestedSteps.value)
+        assertTrue(sessionRepository.takeRestartRequest())
+    }
+
+    @Test
+    fun `returning after a finished tesbihat continues with the next step`() =
+        runTest(mainDispatcher) {
+            store.stored = MuezzinSaved(progress = ogleTesbihat, tesbihatHandoff = true)
+            counterStore.stored = CounterState(
+                PresetContent.defaultTesbihat, stepIndex = 3, count = 1, completed = true,
+            )
+
+            val viewModel = viewModel()
+            runCurrent()
+
+            assertEquals("vehhab", viewModel.flow().step.id)
+            assertFalse(store.stored.tesbihatHandoff)
+            assertEquals("vehhab", store.stored.progress?.stepId)
+        }
+
+    @Test
+    fun `returning before the tesbihat is finished stays on the tesbihat step`() =
+        runTest(mainDispatcher) {
+            store.stored = MuezzinSaved(progress = ogleTesbihat, tesbihatHandoff = true)
+            counterStore.stored = CounterState(PresetContent.defaultTesbihat, stepIndex = 1, count = 4)
+
+            val viewModel = viewModel()
+            runCurrent()
+
+            assertEquals("tesbihat", viewModel.flow().step.id)
+            assertFalse(store.stored.tesbihatHandoff)
+        }
+
+    @Test
+    fun `a finished counter without a handover does not move the flow`() = runTest(mainDispatcher) {
+        store.stored = MuezzinSaved(progress = ogleTesbihat)
+        counterStore.stored = CounterState(
+            PresetContent.defaultTesbihat, stepIndex = 3, count = 1, completed = true,
+        )
+
+        assertEquals("tesbihat", viewModel().flow().step.id)
+    }
+
+    @Test
+    fun `volume up goes forward and volume down goes back once attached`() =
+        runTest(mainDispatcher) {
+            val viewModel = viewModel()
+            viewModel.onSelectFlow(PrayerFlowId.OGLE)
+            viewModel.attachVolumeKeys()
+
+            volumeKeys.onKeyEvent(KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.ACTION_DOWN, 0)
+            volumeKeys.onKeyEvent(KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.ACTION_DOWN, 0)
+            volumeKeys.onKeyEvent(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.ACTION_DOWN, 0)
+            assertEquals(1, viewModel.flow().stepIndex)
+
+            viewModel.detachVolumeKeys()
+            assertFalse(volumeKeys.onKeyEvent(KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.ACTION_DOWN, 0))
+        }
 
     private fun MuezzinViewModel.flow() = uiState.value as MuezzinUiState.Flow
 

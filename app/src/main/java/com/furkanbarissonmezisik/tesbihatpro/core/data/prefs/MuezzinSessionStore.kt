@@ -49,6 +49,7 @@ class DataStoreMuezzinSessionStore(private val context: Context) : MuezzinSessio
             context.muezzinDataStore.edit { preferences ->
                 preferences[Keys.TESRIK] = saved.preferences.tesrik
                 preferences[Keys.BAYRAM_MORNING] = saved.preferences.bayramMorning
+                preferences[Keys.TESBIHAT_HANDOFF] = saved.tesbihatHandoff
                 val progress = saved.progress
                 if (progress == null) {
                     preferences.remove(Keys.FLOW)
@@ -86,6 +87,7 @@ class DataStoreMuezzinSessionStore(private val context: Context) : MuezzinSessio
                     finished = this[Keys.FINISHED] ?: false,
                 )
             },
+            tesbihatHandoff = this[Keys.TESBIHAT_HANDOFF] ?: false,
         )
     }
 
@@ -95,5 +97,6 @@ class DataStoreMuezzinSessionStore(private val context: Context) : MuezzinSessio
         val FLOW = stringPreferencesKey("flow_id")
         val STEP = stringPreferencesKey("step_id")
         val FINISHED = booleanPreferencesKey("finished")
+        val TESBIHAT_HANDOFF = booleanPreferencesKey("tesbihat_handoff")
     }
 }

@@ -14,7 +14,11 @@ import com.furkanbarissonmezisik.tesbihatpro.core.feedback.HapticsController
 import com.furkanbarissonmezisik.tesbihatpro.core.feedback.SoundController
 import com.furkanbarissonmezisik.tesbihatpro.core.input.VolumeKeyDispatcher
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeContentVersionStore
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.MuezzinRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.MuezzinSaved
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeDailyCountDao
+import com.furkanbarissonmezisik.tesbihatpro.testing.FakeMuezzinSessionStore
+import kotlinx.coroutines.launch
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeSessionStore
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeSettingsStore
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeZikirDao
@@ -46,6 +50,7 @@ class CounterViewModelTest {
     private val dao = FakeZikirDao()
     private val dailyDao = FakeDailyCountDao()
     private val settingsStore = FakeSettingsStore(AppSettings(soundEnabled = true))
+    private val muezzinStore = FakeMuezzinSessionStore()
     private val volumeKeys = VolumeKeyDispatcher()
     private val day = "2027-02-08"
     private val haptics = RecordingHaptics()
@@ -84,6 +89,7 @@ class CounterViewModelTest {
         volumeKeys = volumeKeys,
         haptics = haptics,
         sound = sound,
+        muezzinRepository = MuezzinRepository(muezzinStore, backgroundScope, mainDispatcher),
     )
 
     private fun CounterViewModel.ready() = uiState.value as CounterUiState.Ready
@@ -360,10 +366,73 @@ class CounterViewModelTest {
             volumeKeys = volumeKeys,
             haptics = haptics,
             sound = sound,
+            muezzinRepository = MuezzinRepository(muezzinStore, backgroundScope, mainDispatcher),
         )
         runCurrent()
 
         assertEquals(PresetContent.SALAVAT_ID, viewModel.ready().zikir.id)
+    }
+
+    @Test
+    fun `muezzin request restarts the running tesbihat from zero`() = runTest(mainDispatcher) {
+        store.stored = CounterState(PresetContent.defaultTesbihat, stepIndex = 2, count = 7)
+        val viewModel = createViewModel()
+        runCurrent()
+
+        repository.requestSteps(PresetContent.defaultTesbihat, restart = true)
+        runCurrent()
+
+        assertEquals(1, viewModel.ready().stepNumber)
+        assertEquals(0, viewModel.ready().count)
+    }
+
+    @Test
+    fun `muezzin request restarts a completed tesbihat`() = runTest(mainDispatcher) {
+        store.stored = CounterState(
+            PresetContent.defaultTesbihat, stepIndex = 3, count = 1, completed = true,
+        )
+        val viewModel = createViewModel()
+        runCurrent()
+
+        repository.requestSteps(PresetContent.defaultTesbihat, restart = true)
+        runCurrent()
+
+        assertFalse(viewModel.ready().completed)
+        assertEquals(0, viewModel.ready().count)
+    }
+
+    @Test
+    fun `restart is used once and later selections keep the count again`() =
+        runTest(mainDispatcher) {
+            val viewModel = createViewModel()
+            runCurrent()
+            repository.requestSteps(PresetContent.defaultTesbihat, restart = true)
+            runCurrent()
+            viewModel.onTap()
+
+            repository.requestSteps(PresetContent.defaultTesbihat)
+            runCurrent()
+
+            assertEquals(1, viewModel.ready().count)
+        }
+
+    @Test
+    fun `return button shows while the tesbihat is handed over from the muezzin flow`() =
+        runTest(mainDispatcher) {
+            muezzinStore.stored = MuezzinSaved(tesbihatHandoff = true)
+            val viewModel = createViewModel()
+            backgroundScope.launch { viewModel.muezzinReturn.collect {} }
+            runCurrent()
+
+            assertTrue(viewModel.muezzinReturn.value)
+        }
+
+    @Test
+    fun `return button stays hidden without a handover`() = runTest(mainDispatcher) {
+        val viewModel = createViewModel()
+        runCurrent()
+
+        assertFalse(viewModel.muezzinReturn.value)
     }
 
     @Test

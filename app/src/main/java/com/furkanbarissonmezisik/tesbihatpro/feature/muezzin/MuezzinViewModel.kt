@@ -8,7 +8,13 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.furkanbarissonmezisik.tesbihatpro.TesbihApp
 import com.furkanbarissonmezisik.tesbihatpro.core.content.MuezzinFlows
+import com.furkanbarissonmezisik.tesbihatpro.core.content.PresetContent
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.MuezzinRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SessionRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SettingsRepository
+import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.AppSettings
+import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.StepKind
+import com.furkanbarissonmezisik.tesbihatpro.core.input.VolumeKeyDispatcher
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.FlowOptions
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.MuezzinEngine
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.muezzin.MuezzinEvent
@@ -49,8 +55,13 @@ data class Resume(val flowId: PrayerFlowId, val stepNumber: Int)
 
 class MuezzinViewModel(
     private val repository: MuezzinRepository,
+    private val sessionRepository: SessionRepository,
+    settingsRepository: SettingsRepository,
+    private val volumeKeys: VolumeKeyDispatcher,
     private val today: () -> LocalDate = LocalDate::now,
-) : ViewModel() {
+) : ViewModel(), VolumeKeyDispatcher.Listener {
+
+    val settings: StateFlow<AppSettings> = settingsRepository.settings
 
     private var saved = MuezzinSaved()
     private var flow: MuezzinState? = null
@@ -61,11 +72,47 @@ class MuezzinViewModel(
     init {
         viewModelScope.launch {
             saved = repository.load()
+            val tesbihatCompleted = if (saved.tesbihatHandoff) returnFromTesbihat() else false
             val progress = saved.progress
             // Yarıda kalan akış varsa doğrudan kalınan adıma dönülür.
-            if (progress != null && !progress.finished) open(progress) else showHome()
+            if (progress != null && !progress.finished) {
+                open(progress)
+                // Tesbihat Tesbih ekranında bittiyse akış bir sonraki adımdan sürer.
+                if (tesbihatCompleted && flowState()?.step?.kind == StepKind.TESBIHAT) onNext()
+            } else {
+                showHome()
+            }
         }
     }
+
+    /** Tesbih ekranındaki sayım tamamlandıysa true döner; devir kaydını kapatır. */
+    private suspend fun returnFromTesbihat(): Boolean {
+        val counter = sessionRepository.load()
+        saved = saved.copy(tesbihatHandoff = false)
+        repository.save(saved)
+        return counter != null && counter.steps == PresetContent.defaultTesbihat && counter.completed
+    }
+
+    private fun flowState() = _uiState.value as? MuezzinUiState.Flow
+
+    /**
+     * Tesbihat Tesbih ekranında, her namaz için sıfırdan sayılır. Ekran geçişini çağıran yapar;
+     * Tesbih ekranı devir sürdükçe "Müezzin akışına dön" düğmesini gösterir.
+     */
+    fun onCountTesbihat() {
+        saved = saved.copy(tesbihatHandoff = true)
+        repository.save(saved)
+        sessionRepository.requestSteps(PresetContent.defaultTesbihat, restart = true)
+    }
+
+    /** Ses tuşları ayarı açıksa: Ses Açma = İleri, Ses Kısma = Geri. */
+    override fun onVolumeUp() = onNext()
+
+    override fun onVolumeDown() = onPrevious()
+
+    fun attachVolumeKeys() = volumeKeys.register(this)
+
+    fun detachVolumeKeys() = volumeKeys.unregister(this)
 
     fun onSelectFlow(id: PrayerFlowId) {
         flow = MuezzinEngine.start(id, options())
@@ -164,7 +211,12 @@ class MuezzinViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val container = (this[APPLICATION_KEY] as TesbihApp).container
-                MuezzinViewModel(container.muezzinRepository)
+                MuezzinViewModel(
+                    repository = container.muezzinRepository,
+                    sessionRepository = container.sessionRepository,
+                    settingsRepository = container.settingsRepository,
+                    volumeKeys = container.volumeKeyDispatcher,
+                )
             }
         }
     }

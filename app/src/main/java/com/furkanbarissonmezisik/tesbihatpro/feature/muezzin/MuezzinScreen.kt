@@ -30,6 +30,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -59,9 +60,16 @@ import com.furkanbarissonmezisik.tesbihatpro.core.ui.components.SectionTitle
 @Composable
 fun MuezzinRoute(
     onBack: () -> Unit,
+    onOpenCounter: () -> Unit,
     viewModel: MuezzinViewModel = viewModel(factory = MuezzinViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val settings by viewModel.settings.collectAsState()
+    val inFlow = uiState is MuezzinUiState.Flow
+    DisposableEffect(viewModel, inFlow, settings.volumeKeysEnabled) {
+        if (inFlow && settings.volumeKeysEnabled) viewModel.attachVolumeKeys()
+        onDispose { viewModel.detachVolumeKeys() }
+    }
     when (val state = uiState) {
         MuezzinUiState.Loading -> Box(modifier = Modifier.fillMaxSize())
         is MuezzinUiState.Home -> MuezzinHomeScreen(
@@ -81,6 +89,10 @@ fun MuezzinRoute(
                 onNext = viewModel::onNext,
                 onPrevious = viewModel::onPrevious,
                 onRestart = viewModel::onRestart,
+                onCountTesbihat = {
+                    viewModel.onCountTesbihat()
+                    onOpenCounter()
+                },
             )
         }
     }
@@ -194,6 +206,7 @@ fun MuezzinFlowScreen(
     onNext: () -> Unit,
     onPrevious: () -> Unit,
     onRestart: () -> Unit,
+    onCountTesbihat: () -> Unit,
 ) {
     val flowName = stringResource(state.flowId.nameRes())
     Scaffold(
@@ -249,7 +262,7 @@ fun MuezzinFlowScreen(
                         style = MaterialTheme.typography.headlineSmall,
                     )
                 } else {
-                    StepContent(state)
+                    StepContent(state, onCountTesbihat)
                 }
             }
         }
@@ -257,7 +270,7 @@ fun MuezzinFlowScreen(
 }
 
 @Composable
-private fun StepContent(state: MuezzinUiState.Flow) {
+private fun StepContent(state: MuezzinUiState.Flow, onCountTesbihat: () -> Unit) {
     val step = state.step
     Text(
         text = stringResource(R.string.muezzin_step_progress, state.stepIndex + 1, state.steps.size),
@@ -275,6 +288,16 @@ private fun StepContent(state: MuezzinUiState.Flow) {
         )
     }
     Text(text = step.instruction, style = MaterialTheme.typography.titleMedium)
+    if (step.kind == StepKind.TESBIHAT) {
+        Button(onClick = onCountTesbihat, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.muezzin_count_tesbihat))
+        }
+        Text(
+            text = stringResource(R.string.muezzin_count_tesbihat_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
     step.recitation?.let { RecitationContent(it) }
 }
 

@@ -41,6 +41,24 @@ class MuezzinScreenTest {
     private var previouses = 0
     private var restarts = 0
     private var closes = 0
+    private var tesbihatCounts = 0
+
+    @Test
+    fun tesbihatStepOffersToCountOnTheTesbihScreen() {
+        val state = flowState(PrayerFlowId.OGLE, index = 0)
+        showFlow(state.copy(stepIndex = state.steps.indexOfFirst { it.id == "tesbihat" }))
+
+        composeRule.onNodeWithText(text(R.string.muezzin_count_tesbihat)).performClick()
+
+        assertEquals(1, tesbihatCounts)
+    }
+
+    @Test
+    fun otherStepsHaveNoCountButton() {
+        showFlow(flowState(PrayerFlowId.OGLE, index = 0))
+
+        composeRule.onNodeWithText(text(R.string.muezzin_count_tesbihat)).assertDoesNotExist()
+    }
 
     private fun showHome(state: MuezzinUiState.Home) {
         composeRule.setContent {
@@ -74,6 +92,7 @@ class MuezzinScreenTest {
                     onNext = { nexts++ },
                     onPrevious = { previouses++ },
                     onRestart = { restarts++ },
+                    onCountTesbihat = { tesbihatCounts++ },
                 )
             }
         }

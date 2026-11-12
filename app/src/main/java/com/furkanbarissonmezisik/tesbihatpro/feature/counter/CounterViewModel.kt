@@ -22,8 +22,11 @@ import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.Zikir
 import com.furkanbarissonmezisik.tesbihatpro.core.feedback.HapticsController
 import com.furkanbarissonmezisik.tesbihatpro.core.feedback.SoundController
 import com.furkanbarissonmezisik.tesbihatpro.core.input.VolumeKeyDispatcher
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.MuezzinRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -54,9 +57,14 @@ class CounterViewModel(
     private val volumeKeys: VolumeKeyDispatcher,
     private val haptics: HapticsController,
     private val sound: SoundController,
+    muezzinRepository: MuezzinRepository,
 ) : ViewModel(), VolumeKeyDispatcher.Listener {
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
+
+    /** Tesbihat müezzin akışından devredildiyse ekran "Müezzin akışına dön" düğmesini gösterir. */
+    val muezzinReturn: StateFlow<Boolean> = muezzinRepository.tesbihatHandoff
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /** Veritabanı okunamasa da hazır zikirlerle sayım sürer. */
     private var zikirsById: Map<Long, Zikir> = PresetContent.zikirs.associateBy { it.id }
@@ -127,10 +135,11 @@ class CounterViewModel(
     }
 
     private suspend fun onStepsRequested(steps: List<TesbihatStep>) {
+        val restart = sessionRepository.takeRestartRequest()
         sessionRepository.clearRequestedSteps()
         if (!hasKnownZikirs(steps)) rememberZikirs(zikirRepository.zikirs.first())
-        // Sürmekte olan zikir yeniden seçilirse sayım korunur.
-        if (hasKnownZikirs(steps) && steps != counterState?.steps) startSession(steps)
+        // Sürmekte olan zikir yeniden seçilirse sayım korunur; müezzin akışı sıfırdan ister.
+        if (hasKnownZikirs(steps) && (restart || steps != counterState?.steps)) startSession(steps)
     }
 
     private fun startSession(steps: List<TesbihatStep>) {
@@ -167,6 +176,7 @@ class CounterViewModel(
                     volumeKeys = container.volumeKeyDispatcher,
                     haptics = container.hapticsController,
                     sound = container.soundController,
+                    muezzinRepository = container.muezzinRepository,
                 )
             }
         }
