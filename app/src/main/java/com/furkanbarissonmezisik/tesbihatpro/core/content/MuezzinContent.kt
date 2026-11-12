@@ -163,7 +163,7 @@ object MuezzinContent {
             "لَهُ مَا فِی السَّمٰوَاتِ وَمَا فِی الْاَرْضِؕ مَنْ ذَا الَّذٖی یَشْفَعُ عِنْدَهُٓ اِلَّا " +
             "بِاِذْنِهٖؕ یَعْلَمُ مَا بَیْنَ اَیْدٖیهِمْ وَمَا خَلْفَهُمْۚ وَلَا یُحٖیطُونَ بِشَیْءٍ " +
             "مِنْ عِلْمِهٖٓ اِلَّا بِمَا شَٓاءَۚ وَسِعَ كُرْسِیُّهُ السَّمٰوَاتِ وَالْاَرْضَۚ وَلَا " +
-            "یَؤُ𐻿دُهُ حِفْظُهُمَاۚ وَهُوَ الْعَلِیُّ الْعَظٖیمُ",
+            "یَؤُ۫دُهُ حِفْظُهُمَاۚ وَهُوَ الْعَلِیُّ الْعَظٖیمُ",
         transliteration = "E'ûzü billâhi mine'ş-şeytâni'r-racîm.\n" +
             "Bismillâhirrahmânirrahîm.\n" +
             "Allâhü lâ ilâhe illâ hüve'l-hayyü'l-kayyûm, lâ te'huzühû sinetün ve lâ nevm, " +
@@ -172,7 +172,10 @@ object MuezzinContent {
             "bimâ şâ', vesia kürsiyyühü's-semâvâti ve'l-ard, ve lâ yeûdühû hıfzuhümâ " +
             "ve hüve'l-aliyyü'l-azîm.",
         meaning = null,
-        source = "Bakara 2/255: ${Sources.KURAN}; Eûzü-besmele ${Sources.ARABIC_REVIEW}",
+        // Portal "yeûdühû"da Android'in çizemediği U+10EFF işaretini kullanıyor; Namaz İlmihali'nin
+        // (s.221) aynı yerde kullandığı U+06EB alındı.
+        source = "Bakara 2/255: ${Sources.KURAN} (\"yeûdühû\"daki işaret ${Sources.NAMAZ_ILMIHALI} " +
+            "s.221 yazımıyla); Eûzü-besmele ${Sources.ARABIC_REVIEW}",
         meaningRef = "Kur'an Yolu meali: kuran.diyanet.gov.tr/tefsir/sure/2/ayet/255",
     )
 

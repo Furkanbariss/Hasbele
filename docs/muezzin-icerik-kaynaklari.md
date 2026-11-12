@@ -30,7 +30,7 @@ Bu dosya `core/content/MuezzinContent.kt` ve `core/content/MuezzinFlows.kt` içi
 | `ente_s_selam` | Allâhümme ente's-selâm | [Kurul fetvası](https://kurul.diyanet.gov.tr/tr/fetva/namazlardan-sonra-tesbihat-nasil-yapilir/0193c42d-56d7-7df9-8636-ceba3a7927e6)'ndan aynen | NI s.219 | yazıldı |
 | `salavat_cagrisi` | Alâ Resûlinâ salavât | **yazıldı** (MEB EBA s.8'deki harekesiz metne göre) | NI s.220 | yazıldı |
 | `tesbih_duasi` | Sübhânallâhi ve'l-hamdü lillâhi… | **yazıldı**, NI s.221 metin katmanıyla karşılaştırıldı | NI s.220 | yazıldı |
-| `ayetel_kursi` | Eûzü-besmele ve Âyetü'l-kürsî | Âyet [KURAN 2/255](https://kuran.diyanet.gov.tr/tefsir/sure/2/ayet/255)'ten aynen; Eûzü-besmele **yazıldı** | NI s.220–221 usulüyle | kaynakta: Kur'an Yolu meali |
+| `ayetel_kursi` | Eûzü-besmele ve Âyetü'l-kürsî | Âyet [KURAN 2/255](https://kuran.diyanet.gov.tr/tefsir/sure/2/ayet/255)'ten aynen, yalnız "yeûdühû"daki işaret Android'de çizilemediği için NI s.221'deki yazımıyla (U+10EFF yerine U+06EB); Eûzü-besmele **yazıldı** | NI s.220–221 usulüyle | kaynakta: Kur'an Yolu meali |
 | `vehhab` | Sübhâne Rabbiye'l-aliyyi'l-a'le'l-vehhâb | **yazıldı** (MEB 11. sınıf s.93) | MEB s.93 | yazıldı |
 | `kunut` | Kunut duaları | **yazıldı**, NI s.216–217 metin katmanıyla karşılaştırıldı | NI s.216 | kaynakta: NI s.216 |
 | `tesrik_tekbiri` | Teşrik tekbiri | **yazıldı** ([Kırklareli Müftülüğü](https://kirklareli.diyanet.gov.tr/sayfalar/contentdetail.aspx?MenuCategory=Kurumsal&ContentId=1017)'ndeki harekesiz metne göre) | NI s.151 | yazıldı |

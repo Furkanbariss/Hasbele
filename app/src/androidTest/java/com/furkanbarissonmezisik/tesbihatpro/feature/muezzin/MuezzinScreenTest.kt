@@ -146,9 +146,11 @@ class MuezzinScreenTest {
             .assertExists()
         composeRule.onNodeWithText(state.step.instruction).assertExists()
         composeRule.onNodeWithText(text(R.string.muezzin_kind_recite)).assertExists()
-        // Ezanda tekbir satırı üç kez geçer.
-        composeRule.onAllNodesWithText(MuezzinContent.ezan.arabic!!.lines().first())
+        // Ezanda tekbir satırı üç kez geçer. TalkBack Arapçayı değil okunuşu okur.
+        composeRule.onAllNodesWithText(MuezzinContent.ezan.transliteration.lines().first())
             .assertCountEquals(3)
+        composeRule.onAllNodesWithText(MuezzinContent.ezan.arabic!!.lines().first())
+            .assertCountEquals(0)
         composeRule.onNodeWithText(text(R.string.muezzin_previous)).assertIsNotEnabled()
     }
 

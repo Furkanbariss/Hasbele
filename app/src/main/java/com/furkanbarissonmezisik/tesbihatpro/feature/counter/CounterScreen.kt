@@ -39,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -223,7 +224,9 @@ private fun CounterContent(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .width(beadStripWidth)
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                // Kenardaki boncuklar alttaki "Müezzin akışına dön" düğmesinin arkasına taşmasın.
+                .clipToBounds(),
         )
         Column(
             modifier = Modifier

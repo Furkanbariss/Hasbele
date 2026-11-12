@@ -39,7 +39,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -287,7 +291,12 @@ private fun StepContent(state: MuezzinUiState.Flow, onCountTesbihat: () -> Unit)
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
         )
     }
-    Text(text = step.instruction, style = MaterialTheme.typography.titleMedium)
+    // Adım değişince TalkBack yeni yönlendirmeyi kendiliğinden okur.
+    Text(
+        text = step.instruction,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+    )
     if (step.kind == StepKind.TESBIHAT) {
         Button(onClick = onCountTesbihat, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.muezzin_count_tesbihat))
@@ -320,7 +329,10 @@ private fun RecitationContent(recitation: Recitation) {
                         lineHeight = 46.sp,
                     ),
                     textAlign = TextAlign.Right,
-                    modifier = Modifier.fillMaxWidth(),
+                    // TalkBack Arapçayı Türkçe sesle bozuk okur; hemen altındaki okunuşu okusun.
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clearAndSetSemantics {},
                 )
             }
             Text(text = reading, style = MaterialTheme.typography.bodyLarge)

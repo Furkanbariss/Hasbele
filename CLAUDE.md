@@ -240,6 +240,8 @@ Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ek
 
 - Varsayılan `values/` İngilizce, `values-tr/` Türkçe. Arapça metinler string kaynağı değil, `PresetContent` verisidir.
 - TalkBack sayıyı ve adımı okur ("Sübhânallah, 12 / 33"); sistem yazı boyutuna uyum sağlanır.
+- Müezzin ekranında Arapça satırlar TalkBack'ten gizlenir (Türkçe sesle bozuk okunur), altındaki okunuş okunur; adım değişince yeni yönlendirme kendiliğinden duyurulur.
+- Arapça metinlerde Android yazı tiplerinin çizemediği karakter (Unicode 15'ten yeni, örn. U+10EFF) kullanılmaz; test bunu denetler. Âyetü'l-kürsî'de bu yüzden Namaz İlmihali'nin U+06EB yazımı kullanılır.
 
 **Değerlendirme (Google Play In-App Review)**
 
@@ -296,6 +298,14 @@ Claude Code her seferinde tek faz uygular; her faz derlenen, çalışan bir uygu
 10. **Yayın hazırlığı**: uygulama ikonu, release build type, R8 ve keep kuralları, sürüm kodu, gizlilik politikası metni taslağı.
     - Kabul: `./gradlew bundleRelease` imzasız da olsa hatasız tamamlanır; release APK'da sayım ve reklam çalışır.
 
+**v2: Müezzinlik Modu** (`dev` dalı; plan ve kararlar Faz 11 öncesinde kullanıcıyla netleşti)
+
+11. **Domain ve motor**: `PrayerFlow`, `MuezzinStep`, `Recitation`, koşullu adımlar, `MuezzinEngine`.
+12. **İçerik**: `MuezzinContent`, `MuezzinFlows` (8 vakit), `docs/muezzin-icerik-kaynaklari.md`; sıraları İlmihal'e göre denetleyen testler.
+13. **Ekranlar**: vakit listesi, adım ekranı, minare ikonu, `MuezzinSessionStore` ile kalıcılık.
+14. **Tesbih entegrasyonu**: tesbihat Tesbih ekranına sıfırdan devredilir, "Müezzin akışına dön"; ses tuşlarıyla İleri/Geri.
+15. **Cila**: Arapça çizim (U+06EB), TalkBack, yatay ekran, boncuk taşması, mağaza metni (`docs/store/magaza-metni.md`).
+
 ## Claude Code çalışma kuralları
 
 Bu bölüm Claude Code'a doğrudan talimattır; dosya proje kökünde `CLAUDE.md` olarak durduğu için her oturumda okunur.
@@ -344,7 +354,7 @@ Müezzin modu, saat uygulaması ve yeni tesbih modelleri için MVP'de ek kod yaz
 
 | Gelecek özellik | Nasıl eklenir | MVP'de bunun için yapılan |
 | --- | --- | --- |
-| Müezzin modu | v2'de yapılıyor (Faz 11–15, `dev` dalı): `feature/muezzin` paketi kullanıcıyı seçtiği vakitte adım adım götürür; her adımda yönlendirme, Arapça, okunuş ve meal görünür. Akışlar `MuezzinFlows`'ta, sıraları ve kaynakları `docs/muezzin-icerik-kaynaklari.md`'de. Tesbihat adımı Tesbih sayacına devredilir. Vakti kullanıcı seçer; otomatik namaz vakti yok. | Dini metinler `core/content`'te; ekranı açık tutma mantığı `core`'da |
+| Müezzin modu | v2'de yapıldı (Faz 11–15, `dev` dalı): `feature/muezzin` paketi kullanıcıyı seçtiği vakitte adım adım götürür; her adımda yönlendirme, Arapça, okunuş ve meal görünür. Akışlar `MuezzinFlows`'ta, sıraları ve kaynakları `docs/muezzin-icerik-kaynaklari.md`'de. Tesbihat adımı Tesbih sayacına devredilir. Vakti kullanıcı seçer; otomatik namaz vakti yok. | Dini metinler `core/content`'te; ekranı açık tutma mantığı `core`'da |
 | Wear OS saat uygulaması | `core/domain` ve `core/content` ayrı bir `:core` modülüne taşınır; yeni `:wear` modülü (Compose for Wear OS) aynı `CounterEngine`'i kullanır. Telefonla eşitleme ayrı bir iş. | `core/domain`'de Android import'u yok |
 | Yeni tesbih modelleri | Modeller `BeadStyles` listesine eklenir. Uygulama ücretsiz kaldığı için satın alma yoktur; modeller reklamla alınır (ödüllü reklam, yalnız ibadet dışı ekranlarda). Ayrıntı modeller eklenirken netleşir. | Boncuk görünümü `BeadStyle` verisi |
 | Hilt'e geçiş | Modül sayısı üçü geçince `AppContainer` Hilt modüllerine bölünür. | Tüm bağımlılıklar tek `AppContainer`'da |

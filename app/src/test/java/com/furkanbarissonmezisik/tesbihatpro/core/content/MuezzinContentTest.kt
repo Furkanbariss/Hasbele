@@ -18,6 +18,15 @@ class MuezzinContentTest {
     }
 
     @Test
+    fun `no text uses characters android fonts cannot draw`() {
+        // U+10EFF (Unicode 15) Android yazı tiplerinde yok; kutu olarak çizilir.
+        for (text in texts) {
+            val arabic = text.arabic ?: continue
+            assertTrue(text.id, arabic.codePoints().noneMatch { it > 0xFFFF })
+        }
+    }
+
+    @Test
     fun `ids are unique`() {
         assertEquals(texts.size, texts.map { it.id }.toSet().size)
     }
