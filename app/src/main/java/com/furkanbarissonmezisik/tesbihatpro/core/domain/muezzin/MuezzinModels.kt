@@ -40,7 +40,11 @@ data class FlowOptions(
 /**
  * Müezzinin okuduğu ya da dinlediği metin. Dini metinler yalnız `core/content` içinde tanımlanır.
  *
+ * Çok satırlı metinlerde Arapça, okunuş ve anlam satır satır birbirine karşılık gelir.
+ *
  * @property arabic null ise Arapçası henüz kaynağından doğrulanmamıştır ve gösterilmez.
+ * @property meaning null ise meal telifli olduğu için konmamıştır; [meaningRef] nerede okunacağını
+ * söyler.
  * @property source Metnin alındığı Diyanet kaynağı ve sayfası.
  */
 data class Recitation(
@@ -49,6 +53,7 @@ data class Recitation(
     val transliteration: String,
     val meaning: String?,
     val source: String,
+    val meaningRef: String? = null,
 )
 
 /**

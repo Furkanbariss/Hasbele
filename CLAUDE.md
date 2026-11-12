@@ -70,9 +70,12 @@ app/src/main/java/com/furkanbarissonmezisik/tesbihatpro/
 │   ├── domain/               // SAF KOTLIN: android.* / androidx.* import'u yasak
 │   │   ├── model/            // Zikir, TesbihatStep, CounterState
 │   │   ├── engine/           // CounterEngine, CounterEvent, CounterEffect
+│   │   ├── muezzin/          // PrayerFlow, MuezzinStep, Recitation, MuezzinEngine
 │   │   └── review/           // ReviewPolicy: değerlendirme ne zaman sorulur
-│   ├── content/
-│   │   └── PresetContent.kt  // hazır zikirler ve tesbihat; tüm dini metinler burada
+│   ├── content/              // tüm dini metinler burada
+│   │   ├── PresetContent.kt  // hazır zikirler ve tesbihat
+│   │   ├── MuezzinContent.kt // müezzinin okuduğu metinler (ezan, kamet, dualar)
+│   │   └── MuezzinFlows.kt   // 8 vaktin adım adım akışı
 │   ├── data/
 │   │   ├── db/               // AppDatabase, entity'ler, DAO'lar
 │   │   ├── prefs/            // SettingsStore, SessionStore, ReviewStore (DataStore)
@@ -301,7 +304,7 @@ Bu bölüm Claude Code'a doğrudan talimattır; dosya proje kökünde `CLAUDE.md
 - Bağımlılıkları yalnızca `gradle/libs.versions.toml` üzerinden ekle. Emin olmadığın bir sürümü uydurma, sor.
 - `core/domain` ve `core/content` içinde `android.*` veya `androidx.*` import'u olmaz.
 - Composable'larda iş mantığı yok: composable olay gönderir, ViewModel motor ve repository'leri çağırır.
-- Kullanıcıya görünen her metin `strings.xml`'de (`values/` İngilizce, `values-tr/` Türkçe). Dini metinler yalnızca `PresetContent.kt`'de durur; yeni dini metin ekleme, mevcutları değiştirme.
+- Kullanıcıya görünen her metin `strings.xml`'de (`values/` İngilizce, `values-tr/` Türkçe). Dini metinler ve müezzin akışlarının yönlendirmeleri yalnızca `core/content` içinde durur (`PresetContent`, `MuezzinContent`, `MuezzinFlows`) ve yalnız Türkçedir; kullanıcı istemedikçe yeni dini metin ekleme, mevcutları değiştirme. Her müezzin metninin kaynağı `docs/muezzin-icerik-kaynaklari.md`'de yazılıdır; uzun mealler telifli olduğundan koda konmaz, kaynağı gösterilir.
 - Dini konularda (metin, sayı, sıra, hüküm) tek ölçü Diyanet'tir: Din İşleri Yüksek Kurulu, Diyanet yayınları ve müftülükler. Başka kaynağa dayanma; Diyanet'te karşılığı yoksa sor.
 - Gerçek AdMob ID'leri, keystore ve imzalama bilgileri koda veya repoya girmez.
 - Hataları yutma; Room, DataStore ve AdMob hatalarını `Log` ile kaydet.
@@ -339,7 +342,7 @@ Müezzin modu, saat uygulaması ve yeni tesbih modelleri için MVP'de ek kod yaz
 
 | Gelecek özellik | Nasıl eklenir | MVP'de bunun için yapılan |
 | --- | --- | --- |
-| Müezzin modu | Yeni `feature/muezzin` paketi: müezzinin yaptıklarını sırasıyla izletir, müezzinler ve müezzinliği öğrenenler aktif takip eder. Kamet metni büyük puntoyla, satır satır, tam ekran. İçerik Diyanet'e göre hazırlanır. 100'lük tesbih sayımından ayrı akıştır, sayıma adım eklenmez. Ekranı açık tutma ve karartma altyapısını kullanır. | Dini metinler `core/content`'te; ekranı açık tutma mantığı `core`'da |
+| Müezzin modu | v2'de yapılıyor (Faz 11–15, `dev` dalı): `feature/muezzin` paketi kullanıcıyı seçtiği vakitte adım adım götürür; her adımda yönlendirme, Arapça, okunuş ve meal görünür. Akışlar `MuezzinFlows`'ta, sıraları ve kaynakları `docs/muezzin-icerik-kaynaklari.md`'de. Tesbihat adımı Tesbih sayacına devredilir. Vakti kullanıcı seçer; otomatik namaz vakti yok. | Dini metinler `core/content`'te; ekranı açık tutma mantığı `core`'da |
 | Wear OS saat uygulaması | `core/domain` ve `core/content` ayrı bir `:core` modülüne taşınır; yeni `:wear` modülü (Compose for Wear OS) aynı `CounterEngine`'i kullanır. Telefonla eşitleme ayrı bir iş. | `core/domain`'de Android import'u yok |
 | Yeni tesbih modelleri | Modeller `BeadStyles` listesine eklenir. Uygulama ücretsiz kaldığı için satın alma yoktur; modeller reklamla alınır (ödüllü reklam, yalnız ibadet dışı ekranlarda). Ayrıntı modeller eklenirken netleşir. | Boncuk görünümü `BeadStyle` verisi |
 | Hilt'e geçiş | Modül sayısı üçü geçince `AppContainer` Hilt modüllerine bölünür. | Tüm bağımlılıklar tek `AppContainer`'da |
@@ -350,6 +353,8 @@ Bunlar kod dışı işlerdir ve senin yapman gerekir; hedef, Ramazan'dan önce s
 
 - [ ] Paket adı kesinleşti (Play'de sonradan değiştirilemez)
 - [ ] Hazır zikir metinleri Diyanet kaynaklarından kontrol edildi
+- [ ] Müezzin metinleri (özellikle elle yazılan Arapçalar) bir hoca ya da müftülükçe kontrol edildi (`docs/muezzin-icerik-kaynaklari.md`)
+- [ ] Diyanet okunuş ve mealleri için Dini Yayınlar Dairesi'nden yazılı izin alındı
 - [ ] AdMob: gerçek ID'ler yalnız release derlemesinde; hassas kategoriler engellendi
 - [ ] UMP onay formu AB bölgesi simülasyonuyla (debug geography) test edildi
 - [ ] `docs/gizlilik-politikasi.md` herkese açık bir adreste yayında (PDF olmaz); adres Play Console'a girildi. Metin değişirse uygulamadaki `privacy_policy_text` de değişir
