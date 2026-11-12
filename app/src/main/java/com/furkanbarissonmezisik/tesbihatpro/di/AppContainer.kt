@@ -6,6 +6,8 @@ import com.furkanbarissonmezisik.tesbihatpro.core.ads.AdsController
 import com.furkanbarissonmezisik.tesbihatpro.core.ads.UmpConsentManager
 import com.furkanbarissonmezisik.tesbihatpro.core.data.db.AppDatabase
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreContentVersionStore
+import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreMuezzinSessionStore
+import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.MuezzinRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreReviewStore
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreSessionStore
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreSettingsStore
@@ -56,6 +58,7 @@ class AppContainer(context: Context) {
     val soundController: SoundController = SoundPoolController(context)
     val reviewController: ReviewController = PlayReviewController(context)
     val reviewStore: ReviewStore = DataStoreReviewStore(context)
+    val muezzinRepository = MuezzinRepository(DataStoreMuezzinSessionStore(context), applicationScope)
 
     fun flushPendingWrites() {
         applicationScope.launch { sessionRepository.flush() }

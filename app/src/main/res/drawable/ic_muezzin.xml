@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Minare: külah, şerefe, gövde ve kaide -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,1.5L14.2,6.5H9.8Z M10.4,6.5H13.6V9H10.4Z M8.2,9H15.8V10.6H8.2Z M10,10.6H14V20H10Z M7,20H17V22.5H7Z" />
+</vector>

@@ -57,6 +57,7 @@ class CounterScreenTest {
                     onOpenZikirs = {},
                     onOpenHistory = {},
                     onOpenSettings = {},
+                    onOpenMuezzin = {},
                 )
             }
         }

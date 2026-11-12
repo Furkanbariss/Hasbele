@@ -72,6 +72,7 @@ fun CounterRoute(
     onOpenZikirs: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenMuezzin: () -> Unit,
     viewModel: CounterViewModel = viewModel(factory = CounterViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -101,6 +102,7 @@ fun CounterRoute(
             onOpenZikirs = onOpenZikirs,
             onOpenHistory = onOpenHistory,
             onOpenSettings = onOpenSettings,
+            onOpenMuezzin = onOpenMuezzin,
         )
         if (dimmed) {
             DimOverlay(onTap = viewModel::onTap, onExit = { dimmed = false })
@@ -121,12 +123,19 @@ fun CounterScreen(
     onOpenZikirs: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenMuezzin: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
+                    IconButton(onClick = onOpenMuezzin) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_muezzin),
+                            contentDescription = stringResource(R.string.muezzin_title),
+                        )
+                    }
                     IconButton(onClick = onOpenZikirs) {
                         Icon(
                             painter = painterResource(R.drawable.ic_zikir_list),

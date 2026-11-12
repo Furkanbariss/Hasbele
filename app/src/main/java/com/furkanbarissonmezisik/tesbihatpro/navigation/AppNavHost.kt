@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.furkanbarissonmezisik.tesbihatpro.feature.counter.CounterRoute
 import com.furkanbarissonmezisik.tesbihatpro.feature.history.HistoryRoute
+import com.furkanbarissonmezisik.tesbihatpro.feature.muezzin.MuezzinRoute
 import com.furkanbarissonmezisik.tesbihatpro.feature.settings.SettingsRoute
 import com.furkanbarissonmezisik.tesbihatpro.feature.zikirs.ZikirListRoute
 
@@ -16,6 +17,7 @@ private object Routes {
     const val ZIKIRS = "zikirs"
     const val HISTORY = "history"
     const val SETTINGS = "settings"
+    const val MUEZZIN = "muezzin"
 }
 
 @Composable
@@ -31,7 +33,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onOpenZikirs = { navController.open(Routes.ZIKIRS) },
                 onOpenHistory = { navController.open(Routes.HISTORY) },
                 onOpenSettings = { navController.open(Routes.SETTINGS) },
+                onOpenMuezzin = { navController.open(Routes.MUEZZIN) },
             )
+        }
+        composable(Routes.MUEZZIN) {
+            MuezzinRoute(onBack = { navController.navigateUp() })
         }
         composable(Routes.ZIKIRS) {
             ZikirListRoute(onBack = { navController.navigateUp() })
