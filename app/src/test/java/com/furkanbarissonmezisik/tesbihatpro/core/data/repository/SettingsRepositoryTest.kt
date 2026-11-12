@@ -26,6 +26,7 @@ class SettingsRepositoryTest {
                 theme = ThemeMode.SYSTEM,
                 beadStyleId = "amber",
                 adsEnabled = true,
+                welcomeSeen = false,
             ),
             AppSettings(),
         )

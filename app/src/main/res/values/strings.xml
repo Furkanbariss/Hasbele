@@ -62,7 +62,6 @@
     <string name="settings_section_ads">Ads</string>
     <string name="settings_ads">Show ads</string>
     <string name="settings_ads_hint">Only on the History and Settings screens</string>
-    <string name="settings_section_about">About</string>
     <string name="settings_about_version">Version %1$s</string>
     <string name="settings_privacy_options">Privacy options</string>
     <string name="settings_privacy_policy">Privacy policy</string>
@@ -97,6 +96,27 @@
     <string name="muezzin_count_tesbihat">Count the tesbihat</string>
     <string name="muezzin_count_tesbihat_hint">The tesbih counter opens from zero. When you finish, return to the flow from there.</string>
     <string name="muezzin_return">Back to the muezzin flow</string>
+    <string name="menu_open">Menu</string>
+    <string name="screen_about">About</string>
+    <string name="contact_email" translatable="false">fbsonmezisik@outlook.com</string>
+    <string name="welcome_title">Welcome to Tesbihat Pro</string>
+    <string name="welcome_tesbih_title">Tesbih</string>
+    <string name="welcome_tesbih">Tap anywhere on the screen or use the volume keys to count. Your count is never lost.</string>
+    <string name="welcome_muezzin_title">Muezzin guide</string>
+    <string name="welcome_muezzin">Tap the minaret icon at the top and choose the prayer: the ezan, kamet, tesbihat and duas come to you step by step.</string>
+    <string name="welcome_source_title">Religious content</string>
+    <string name="welcome_source">This app is not an official app of the Presidency of Religious Affairs of Türkiye (Diyanet). Its religious content is prepared on the basis of Diyanet publications.</string>
+    <string name="welcome_privacy_title">Privacy and ads</string>
+    <string name="welcome_privacy">Your counts stay only on your phone. Ads appear only on the History and Settings screens, and you can turn them off in Settings.</string>
+    <string name="welcome_more">You can read more under About in the menu.</string>
+    <string name="welcome_continue">Got it, let\'s start</string>
+    <string name="about_intro">Tesbihat Pro is a free app made as charity. It counts dhikr and the tesbihat after prayer, and shows the muezzin\'s duties for each prayer step by step.</string>
+    <string name="about_muezzin">Choose the prayer from the minaret icon or the menu. Each step tells you what to do and shows the text to read in Arabic, with its Turkish reading and, for short texts, its meaning. In the tesbihat step the tesbih counter opens from zero; when you finish, you return to the flow. The guide\'s religious texts and instructions are in Turkish.</string>
+    <string name="about_religious">This app is not an official app of the Presidency of Religious Affairs of Türkiye (Diyanet). Its religious content is prepared on the basis of Diyanet publications. The tesbihat counts follow the fatwa of Diyanet\'s High Board of Religious Affairs; the muezzin flows follow Diyanet\'s İslam İlmihali and Namaz İlmihali, its Religious Services Application Circular and the Hitabet ve Mesleki Uygulama course of the Ministry of National Education. The source of every text is written under it. If you notice a mistake, please write to us.</string>
+    <string name="about_section_app">This app</string>
+    <string name="about_contact">Contact</string>
+    <string name="about_licenses">Open source licenses</string>
+    <string name="about_licenses_text">This app uses the following libraries:\n\nAndroidX (Jetpack Compose, Activity, Core, Lifecycle, Navigation, Room, DataStore)\nApache License 2.0\n\nKotlin and kotlinx.coroutines\nApache License 2.0\n\nGoogle Mobile Ads SDK and User Messaging Platform\nGoogle Mobile Ads SDK Terms\n\nGoogle Play In-App Review\nPlay Core Software Development Kit Terms of Service\n\nApache License 2.0: https://www.apache.org/licenses/LICENSE-2.0</string>
     <string name="prayer_sabah">Fajr</string>
     <string name="prayer_ogle">Dhuhr</string>
     <string name="prayer_ikindi">Asr</string>

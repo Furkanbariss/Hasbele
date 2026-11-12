@@ -52,6 +52,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                 preferences[Keys.THEME] = updated.theme.name
                 preferences[Keys.BEAD_STYLE] = updated.beadStyleId
                 preferences[Keys.ADS] = updated.adsEnabled
+                preferences[Keys.WELCOME_SEEN] = updated.welcomeSeen
             }
         } catch (exception: IOException) {
             Log.e(TAG, "Ayarlar yazılamadı", exception)
@@ -68,6 +69,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             theme = ThemeMode.entries.find { it.name == this[Keys.THEME] } ?: defaults.theme,
             beadStyleId = this[Keys.BEAD_STYLE] ?: defaults.beadStyleId,
             adsEnabled = this[Keys.ADS] ?: defaults.adsEnabled,
+            welcomeSeen = this[Keys.WELCOME_SEEN] ?: defaults.welcomeSeen,
         )
     }
 
@@ -79,5 +81,6 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         val THEME = stringPreferencesKey("theme")
         val BEAD_STYLE = stringPreferencesKey("bead_style_id")
         val ADS = booleanPreferencesKey("ads_enabled")
+        val WELCOME_SEEN = booleanPreferencesKey("welcome_seen")
     }
 }

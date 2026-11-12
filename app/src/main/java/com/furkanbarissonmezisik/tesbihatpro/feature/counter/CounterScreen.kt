@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -34,6 +36,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -75,6 +78,7 @@ fun CounterRoute(
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenMuezzin: () -> Unit,
+    onOpenAbout: () -> Unit,
     viewModel: CounterViewModel = viewModel(factory = CounterViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -106,6 +110,7 @@ fun CounterRoute(
             onOpenHistory = onOpenHistory,
             onOpenSettings = onOpenSettings,
             onOpenMuezzin = onOpenMuezzin,
+            onOpenAbout = onOpenAbout,
             showMuezzinReturn = muezzinReturn,
         )
         if (dimmed) {
@@ -128,6 +133,7 @@ fun CounterScreen(
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenMuezzin: () -> Unit,
+    onOpenAbout: () -> Unit,
     /** Tesbihat müezzin akışından devredildiyse alttaki dönüş düğmesi görünür. */
     showMuezzinReturn: Boolean = false,
 ) {
@@ -149,30 +155,20 @@ fun CounterScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
+                    // Uygulamanın asıl amacı olduğu için müezzinlik menünün dışında da durur.
                     IconButton(onClick = onOpenMuezzin) {
                         Icon(
                             painter = painterResource(R.drawable.ic_muezzin),
                             contentDescription = stringResource(R.string.muezzin_title),
                         )
                     }
-                    IconButton(onClick = onOpenZikirs) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_zikir_list),
-                            contentDescription = stringResource(R.string.screen_zikirs),
-                        )
-                    }
-                    IconButton(onClick = onOpenHistory) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_history),
-                            contentDescription = stringResource(R.string.screen_history),
-                        )
-                    }
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_settings),
-                            contentDescription = stringResource(R.string.screen_settings),
-                        )
-                    }
+                    AppMenu(
+                        onOpenMuezzin = onOpenMuezzin,
+                        onOpenZikirs = onOpenZikirs,
+                        onOpenHistory = onOpenHistory,
+                        onOpenSettings = onOpenSettings,
+                        onOpenAbout = onOpenAbout,
+                    )
                 },
             )
         },
@@ -305,6 +301,44 @@ private fun CounterContent(
             },
             onDismiss = { showResetDialog = false },
         )
+    }
+}
+
+/** Ekranlar sağ üstteki tek menüde, yazılı olarak durur; ikon tek başına anlaşılmayabilir. */
+@Composable
+private fun AppMenu(
+    onOpenMuezzin: () -> Unit,
+    onOpenZikirs: () -> Unit,
+    onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenAbout: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                painter = painterResource(R.drawable.ic_more_vert),
+                contentDescription = stringResource(R.string.menu_open),
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            listOf(
+                Triple(R.string.muezzin_title, R.drawable.ic_muezzin, onOpenMuezzin),
+                Triple(R.string.screen_zikirs, R.drawable.ic_zikir_list, onOpenZikirs),
+                Triple(R.string.screen_history, R.drawable.ic_history, onOpenHistory),
+                Triple(R.string.screen_settings, R.drawable.ic_settings, onOpenSettings),
+                Triple(R.string.screen_about, R.drawable.ic_info, onOpenAbout),
+            ).forEach { (label, icon, open) ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(label)) },
+                    leadingIcon = { Icon(painter = painterResource(icon), contentDescription = null) },
+                    onClick = {
+                        expanded = false
+                        open()
+                    },
+                )
+            }
+        }
     }
 }
 

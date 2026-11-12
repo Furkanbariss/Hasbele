@@ -10,10 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -23,20 +20,15 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.furkanbarissonmezisik.tesbihatpro.BuildConfig
 import com.furkanbarissonmezisik.tesbihatpro.R
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.AppSettings
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.ThemeMode
@@ -56,7 +48,6 @@ fun SettingsRoute(
     val view = LocalView.current
     SettingsScreen(
         settings = settings,
-        versionName = BuildConfig.VERSION_NAME,
         privacyOptionsRequired = privacyOptionsRequired,
         onBack = onBack,
         onSoundChange = viewModel::onSoundChange,
@@ -67,7 +58,6 @@ fun SettingsRoute(
         onBeadStyleChange = viewModel::onBeadStyleChange,
         onAdsChange = viewModel::onAdsChange,
         onPrivacyOptions = { viewModel.onPrivacyOptions(view.context.findActivity()) },
-        onRateApp = { viewModel.onRateApp(view.context.findActivity()) },
         adBanner ={ BannerAd(viewModel.adsController, enabled = settings.adsEnabled) },
     )
 }
@@ -75,7 +65,6 @@ fun SettingsRoute(
 @Composable
 fun SettingsScreen(
     settings: AppSettings,
-    versionName: String,
     privacyOptionsRequired: Boolean,
     onBack: () -> Unit,
     onSoundChange: (Boolean) -> Unit,
@@ -86,11 +75,9 @@ fun SettingsScreen(
     onBeadStyleChange: (String) -> Unit,
     onAdsChange: (Boolean) -> Unit,
     onPrivacyOptions: () -> Unit,
-    onRateApp: () -> Unit,
     adBanner: @Composable () -> Unit = {},
 ) {
-    var showPrivacyPolicy by rememberSaveable { mutableStateOf(false) }
-
+    // Gizlilik politikası, değerlendirme ve sürüm Hakkında sayfasındadır; burada yalnız ayarlar durur.
     Scaffold(
         topBar = {
             DetailTopBar(title = stringResource(R.string.screen_settings), onBack = onBack)
@@ -176,55 +163,8 @@ fun SettingsScreen(
                     )
                 }
             }
-            item { SectionTitle(stringResource(R.string.settings_section_about)) }
-            item {
-                ListItem(
-                    modifier = Modifier.clickable { showPrivacyPolicy = true },
-                    headlineContent = { Text(stringResource(R.string.settings_privacy_policy)) },
-                )
-            }
-            item {
-                ListItem(
-                    modifier = Modifier.clickable(onClick = onRateApp),
-                    headlineContent = { Text(stringResource(R.string.settings_rate_app)) },
-                    supportingContent = { Text(stringResource(R.string.settings_rate_app_hint)) },
-                )
-            }
-            item {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.app_name)) },
-                    supportingContent = {
-                        Text(stringResource(R.string.settings_about_version, versionName))
-                    },
-                )
-            }
         }
     }
-
-    if (showPrivacyPolicy) {
-        PrivacyPolicyDialog(onDismiss = { showPrivacyPolicy = false })
-    }
-}
-
-/** Google Play politikanın uygulama içinden de erişilebilir olmasını ister. */
-@Composable
-private fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_privacy_policy)) },
-        text = {
-            Text(
-                text = stringResource(R.string.privacy_policy_text),
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_close))
-            }
-        },
-    )
 }
 
 @Composable

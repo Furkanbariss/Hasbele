@@ -33,7 +33,6 @@ class SettingsScreenTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     private var privacyClicks = 0
-    private var rateClicks = 0
 
     private fun show(
         initial: AppSettings = AppSettings(),
@@ -44,7 +43,6 @@ class SettingsScreenTest {
             TesbihatProTheme {
                 SettingsScreen(
                     settings = settings,
-                    versionName = "1.2",
                     privacyOptionsRequired = privacyOptionsRequired,
                     onBack = {},
                     onPrivacyOptions = { privacyClicks++ },
@@ -55,7 +53,6 @@ class SettingsScreenTest {
                     onThemeChange = { settings = settings.copy(theme = it) },
                     onBeadStyleChange = { settings = settings.copy(beadStyleId = it) },
                     onAdsChange = { settings = settings.copy(adsEnabled = it) },
-                    onRateApp = { rateClicks++ },
                 )
             }
         }
@@ -132,7 +129,7 @@ class SettingsScreenTest {
     fun privacyEntryIsHiddenWhenNotRequired() {
         show()
 
-        scrollTo(R.string.settings_privacy_policy)
+        scrollTo(R.string.settings_ads)
         row(R.string.settings_privacy_options).assertDoesNotExist()
     }
 
@@ -162,41 +159,8 @@ class SettingsScreenTest {
     fun privacyEntryIsHiddenWhileAdsAreOff() {
         show(AppSettings(adsEnabled = false), privacyOptionsRequired = true)
 
-        scrollTo(R.string.settings_privacy_policy)
+        scrollTo(R.string.settings_ads)
         row(R.string.settings_ads).assertIsOff()
         row(R.string.settings_privacy_options).assertDoesNotExist()
-    }
-
-    @Test
-    fun privacyPolicyCanBeReadInsideTheApp() {
-        show()
-
-        scrollTo(R.string.settings_privacy_policy)
-        row(R.string.settings_privacy_policy).performClick()
-
-        val text = context.getString(R.string.privacy_policy_text)
-        composeRule.onNodeWithText(text).assertExists()
-
-        composeRule.onNodeWithText(context.getString(R.string.action_close)).performClick()
-        composeRule.onNodeWithText(text).assertDoesNotExist()
-    }
-
-    @Test
-    fun rateRowOpensTheStorePage() {
-        show()
-
-        scrollTo(R.string.settings_rate_app)
-        row(R.string.settings_rate_app).performClick()
-
-        assertEquals(1, rateClicks)
-    }
-
-    @Test
-    fun aboutShowsTheVersion() {
-        show()
-
-        val version = context.getString(R.string.settings_about_version, "1.2")
-        scrollTo(version)
-        composeRule.onNodeWithText(version).assertExists()
     }
 }

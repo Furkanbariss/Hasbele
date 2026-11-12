@@ -35,7 +35,7 @@ Tek Activity, Jetpack Compose ve MVVM ile tek modüllü bir uygulama; kütüphan
 | Dil | Kotlin | Mevcut deneyim |
 | Arayüz | Jetpack Compose + Material 3, tek Activity | Canvas ile boncuk çizimi kolay |
 | Mimari | MVVM + tek yönlü veri akışı (UiState + olaylar) | Test edilebilir, sade |
-| Navigasyon | Navigation Compose | 4 ekran |
+| Navigasyon | Navigation Compose | Tesbih, Zikirler, Müezzinlik, Geçmiş, Ayarlar, Hakkında, ilk açılış |
 | Veritabanı | Room (KSP ile) | Zikirler ve günlük geçmiş |
 | Ayarlar ve aktif oturum | DataStore (Preferences) | Küçük anahtar-değer verisi |
 | Bağımlılık enjeksiyonu | Manuel `AppContainer` | MVP'de Hilt kurulumu gereksiz yük; büyüyünce Hilt'e geçilir |
@@ -89,7 +89,9 @@ app/src/main/java/com/furkanbarissonmezisik/tesbihatpro/
     ├── counter/              // CounterScreen, CounterViewModel, TesbihBeads (Canvas), DimOverlay
     ├── zikirs/               // ZikirListScreen, ZikirEditDialog, ZikirsViewModel
     ├── history/              // HistoryScreen, HistoryViewModel
-    └── settings/             // SettingsScreen, SettingsViewModel
+    ├── settings/             // SettingsScreen, SettingsViewModel
+    ├── muezzin/              // MuezzinScreen (vakit listesi, adım ekranı), MuezzinViewModel
+    └── about/                // AboutScreen (Hakkında), WelcomeScreen (ilk açılış), ViewModel'leri
 ```
 
 `tools/` ses ve ikon üreten betikleri, `docs/` gizlilik politikasını ve Play notlarını tutar.
@@ -180,7 +182,7 @@ Hazır zikirler ilk açılışta `PresetContent`'ten yüklenir. DataStore'daki `
 
 **DataStore**
 
-- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsEnabled
+- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsEnabled, welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
 - `SessionStore`: aktif adım listesi (zikir id + hedef), stepIndex, count, completed, updatedAt
 
 **Sayımı kaybetmeme kuralı**
@@ -196,15 +198,17 @@ Tüm yazımlar `Dispatchers.IO`'da yapılır; dokunuşun ekrana ve titreşime ya
 
 ## Ekranlar ve deneyim
 
-Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ekrana üst bardaki ikonlarla gidilir (alt menü yok, sayım ekranı sade kalır).
+İlk kurulumda bir kez bilgilendirme ekranı çıkar; "Anladım" denince bir daha kendiliğinden çıkmaz. Sonra uygulama hep Tesbih ekranıyla açılır ve bu ekranda reklam yoktur. Tesbih ekranının üst barında iki düğme vardır: minare (müezzinlik, uygulamanın asıl amacı olduğu için menünün dışında da durur) ve tek bir açılır menü (Müezzinlik, Zikirler, Geçmiş, Ayarlar, Hakkında; simgeli ve yazılı). Alt menü yoktur, sayım ekranı sade kalır. Menü açılırken yapılan dokunuşlar sayılmaz.
 
 | Ekran | İçerik | Reklam |
 | --- | --- | --- |
+| İlk açılış bilgilendirmesi | Tek ekran: tesbih, müezzinlik, "Diyanet'in resmî uygulaması değildir" notu, gizlilik ve reklam; "Anladım, başla" | Yok |
 | Tesbih (başlangıç) | Boncuklar, büyük sayı, adımın Arapçası ve okunuşu, adım göstergesi (1/3), geri al, sıfırla, karartma düğmesi | Yok |
 | Zikirler | En üstte "Namaz sonrası tesbihat", altında hazır ve kendi zikirlerin; ekle, düzenle, sil (hazırlar hariç) | Yok |
 | Müezzinlik (üst bardaki minare ikonu) | Vakit listesi, teşrik ve bayram sabahı seçenekleri; seçilen vaktin adım adım akışı (yönlendirme, Arapça, okunuş, meal, kaynak; İleri/Geri). Yarıda kalan akış açılışta kalınan adımdan sürer. Tesbihat adımındaki "Tesbihatı say" Tesbih ekranını tesbihatla sıfırdan açar (`requestSteps(..., restart = true)`); devir sürdükçe Tesbih ekranının altında "Müezzin akışına dön" görünür, tesbihat bittiyse akış sonraki adımdan sürer | Yok |
 | Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Banner |
-| Ayarlar | Ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster, gizlilik seçenekleri, gizlilik politikası, uygulamayı değerlendir, hakkında | Banner |
+| Ayarlar | Yalnız ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster, gizlilik seçenekleri | Banner |
+| Hakkında (menüden) | Uygulamanın amacı, müezzinlik rehberi, dini içerik ve kaynaklar (Diyanet notu), gizlilik ve gizlilik politikası, uygulamayı değerlendir, iletişim, açık kaynak lisansları, sürüm | Yok |
 
 **Tesbih boncukları (`TesbihBeads`)**
 
@@ -248,7 +252,9 @@ Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ek
 - Pencere yalnız Geçmiş ekranı açılınca denenir; Tesbih ve Zikirler'de, yani ibadet sırasında hiç çıkmaz.
 - Koşul (`ReviewPolicy`): son 30 günde en az 3 farklı günde sayım yapılmış olmalı ve son denemeden en az 30 gün geçmiş olmalı. Deneme tarihi `ReviewStore`'da tutulur; pencere çıkmasa da deneme sayılır.
 - Google kendi kotasıyla da sınırlar; uygulama Play'den kurulmadıysa pencere hiç çıkmaz. Bu yüzden düğmeyle açılmaz.
-- Ayarlar'daki "Uygulamayı değerlendir" satırı pencere yerine Google Play sayfasını açar; her zaman çalışır.
+- Hakkında'daki "Uygulamayı değerlendir" satırı pencere yerine Google Play sayfasını açar; her zaman çalışır.
+
+**Diyanet'in adı**: Yalnız kaynak olarak geçer (adımların altındaki kaynak satırları, Hakkında, mağaza metni). İlk açılışta ve Hakkında'da "Bu uygulama Diyanet İşleri Başkanlığı'nın resmî uygulaması değildir; dini içerik Diyanet yayınları esas alınarak hazırlanmıştır" yazar. Diyanet logosu kullanılmaz.
 
 ## Reklam
 
@@ -305,6 +311,7 @@ Claude Code her seferinde tek faz uygular; her faz derlenen, çalışan bir uygu
 13. **Ekranlar**: vakit listesi, adım ekranı, minare ikonu, `MuezzinSessionStore` ile kalıcılık.
 14. **Tesbih entegrasyonu**: tesbihat Tesbih ekranına sıfırdan devredilir, "Müezzin akışına dön"; ses tuşlarıyla İleri/Geri.
 15. **Cila**: Arapça çizim (U+06EB), TalkBack, yatay ekran, boncuk taşması, mağaza metni (`docs/store/magaza-metni.md`).
+16. **Menü, Hakkında ve ilk açılış**: dört ikon tek açılır menüde (minare dışarıda da durur), Hakkında sayfası Ayarlar'dan ayrıldı, ilk kurulumda bir kez bilgilendirme, Diyanet notu.
 
 ## Claude Code çalışma kuralları
 
@@ -366,7 +373,7 @@ Bunlar kod dışı işlerdir ve senin yapman gerekir; hedef, Ramazan'dan önce s
 - [ ] Paket adı kesinleşti (Play'de sonradan değiştirilemez)
 - [ ] Hazır zikir metinleri Diyanet kaynaklarından kontrol edildi
 - [ ] Müezzin metinleri (özellikle elle yazılan Arapçalar) bir hoca ya da müftülükçe kontrol edildi (`docs/muezzin-icerik-kaynaklari.md`)
-- [ ] Diyanet okunuş ve mealleri için Dini Yayınlar Dairesi'nden yazılı izin alındı
+- [ ] Diyanet'in uzun meallerini (örn. Kur'an Yolu meali, İlmihal'deki dua anlamları) uygulamaya koymak istersen Dini Yayınlar Dairesi'nden yazılı izin alındı. Şu anki içerik izin gerektirmez: Arapça metinler ve resmî genelgeler telife konu değil, uzun mealler konmadı, yalnız kaynakları gösteriliyor. Diyanet'in adı yalnız kaynak olarak geçer, resmî uygulama izlenimi verilmez
 - [ ] AdMob: gerçek ID'ler yalnız release derlemesinde; hassas kategoriler engellendi
 - [ ] UMP onay formu AB bölgesi simülasyonuyla (debug geography) test edildi
 - [ ] `docs/gizlilik-politikasi.md` herkese açık bir adreste yayında (PDF olmaz); adres Play Console'a girildi. Metin değişirse uygulamadaki `privacy_policy_text` de değişir

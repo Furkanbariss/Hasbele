@@ -12,6 +12,8 @@ data class AppSettings(
     val beadStyleId: String = DEFAULT_BEAD_STYLE_ID,
     // Uygulama kâr için yapılmadı; kullanıcı reklamları Ayarlar'dan kapatabilir.
     val adsEnabled: Boolean = true,
+    /** İlk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada durur. */
+    val welcomeSeen: Boolean = false,
 ) {
     companion object {
         const val DEFAULT_BEAD_STYLE_ID = "amber"

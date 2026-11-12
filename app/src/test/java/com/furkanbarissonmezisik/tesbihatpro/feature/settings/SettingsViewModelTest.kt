@@ -4,7 +4,6 @@ import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SettingsReposi
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.AppSettings
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.ThemeMode
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeAdsController
-import com.furkanbarissonmezisik.tesbihatpro.testing.FakeReviewController
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeSettingsStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -22,7 +21,6 @@ class SettingsViewModelTest {
         val viewModel = SettingsViewModel(
             SettingsRepository(store, backgroundScope),
             FakeAdsController(),
-            FakeReviewController(),
         )
         runCurrent()
         return viewModel

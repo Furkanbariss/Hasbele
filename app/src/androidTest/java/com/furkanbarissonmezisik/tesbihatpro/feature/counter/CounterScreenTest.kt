@@ -3,6 +3,8 @@ package com.furkanbarissonmezisik.tesbihatpro.feature.counter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
@@ -54,13 +56,41 @@ class CounterScreenTest {
                     onResetStep = {},
                     onResetAll = {},
                     onDim = {},
-                    onOpenZikirs = {},
-                    onOpenHistory = {},
-                    onOpenSettings = {},
-                    onOpenMuezzin = {},
+                    onOpenZikirs = { opened += "zikirs" },
+                    onOpenHistory = { opened += "history" },
+                    onOpenSettings = { opened += "settings" },
+                    onOpenMuezzin = { opened += "muezzin" },
+                    onOpenAbout = { opened += "about" },
                 )
             }
         }
+    }
+
+    private val opened = mutableListOf<String>()
+
+    private fun openMenuItem(label: Int) {
+        composeRule.onNodeWithContentDescription(context.getString(R.string.menu_open)).performClick()
+        composeRule.onNodeWithText(context.getString(label)).performClick()
+    }
+
+    @Test
+    fun minaretStaysOnTheBarOutsideTheMenu() {
+        composeRule.onNodeWithContentDescription(context.getString(R.string.muezzin_title))
+            .performClick()
+
+        assertEquals(listOf("muezzin"), opened)
+    }
+
+    @Test
+    fun menuOpensEveryScreen() {
+        openMenuItem(R.string.muezzin_title)
+        openMenuItem(R.string.screen_zikirs)
+        openMenuItem(R.string.screen_history)
+        openMenuItem(R.string.screen_settings)
+        openMenuItem(R.string.screen_about)
+
+        assertEquals(listOf("muezzin", "zikirs", "history", "settings", "about"), opened)
+        assertEquals("opening the menu is not a count", 0, taps)
     }
 
     @Test

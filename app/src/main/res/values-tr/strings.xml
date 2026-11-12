@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="screen_zikirs">Zikirler</string>
     <string name="screen_history">Geçmiş</string>
     <string name="screen_settings">Ayarlar</string>
@@ -57,7 +57,6 @@
     <string name="settings_section_ads">Reklamlar</string>
     <string name="settings_ads">Reklamları göster</string>
     <string name="settings_ads_hint">Yalnız Geçmiş ve Ayarlar ekranlarında</string>
-    <string name="settings_section_about">Hakkında</string>
     <string name="settings_about_version">Sürüm %1$s</string>
     <string name="settings_privacy_options">Gizlilik seçenekleri</string>
     <string name="settings_privacy_policy">Gizlilik politikası</string>
@@ -92,6 +91,26 @@
     <string name="muezzin_count_tesbihat">Tesbihatı say</string>
     <string name="muezzin_count_tesbihat_hint">Tesbih sayacı sıfırdan açılır. Bitince oradan akışa dönersin.</string>
     <string name="muezzin_return">Müezzin akışına dön</string>
+    <string name="menu_open">Menü</string>
+    <string name="screen_about">Hakkında</string>
+    <string name="welcome_title">Tesbihat Pro\'ya hoş geldin</string>
+    <string name="welcome_tesbih_title">Tesbih</string>
+    <string name="welcome_tesbih">Ekranın herhangi bir yerine dokunarak ya da ses tuşlarıyla say. Sayımın kaybolmaz.</string>
+    <string name="welcome_muezzin_title">Müezzinlik</string>
+    <string name="welcome_muezzin" tools:ignore="Typos">Üstteki minare ikonuna dokun ve vakti seç; ezan, kamet, tesbihat ve dualar adım adım önüne gelir.</string>
+    <string name="welcome_source_title">Dini içerik</string>
+    <string name="welcome_source">Bu uygulama Diyanet İşleri Başkanlığı\'nın resmî uygulaması değildir. Dini içerik Diyanet yayınları esas alınarak hazırlanmıştır.</string>
+    <string name="welcome_privacy_title">Gizlilik ve reklam</string>
+    <string name="welcome_privacy">Sayımların yalnız telefonunda kalır. Reklam yalnız Geçmiş ve Ayarlar ekranlarında görünür ve Ayarlar\'dan kapatılabilir.</string>
+    <string name="welcome_more">Daha fazlası için menüdeki Hakkında sayfasına bakabilirsin.</string>
+    <string name="welcome_continue">Anladım, başla</string>
+    <string name="about_intro" tools:ignore="Typos">Tesbihat Pro hayır için yapılmış ücretsiz bir uygulamadır. Zikri ve namaz sonrası tesbihatı sayar, her vakit için müezzinin yaptıklarını adım adım gösterir.</string>
+    <string name="about_muezzin">Vakti minare ikonundan ya da menüden seç. Her adımda ne yapacağın yazar; okuyacağın metnin Arapçası, Türkçe okunuşu ve kısa metinlerde anlamı görünür. Tesbihat adımında tesbih sayacı sıfırdan açılır, bitince akışa dönersin.</string>
+    <string name="about_religious">Bu uygulama Diyanet İşleri Başkanlığı\'nın resmî uygulaması değildir. Dini içerik Diyanet yayınları esas alınarak hazırlanmıştır. Tesbihat sayıları Din İşleri Yüksek Kurulu fetvasına; müezzinlik akışları Diyanet İslam İlmihali, Namaz İlmihali, Din Hizmetleri Uygulama Genelgesi ve MEB Hitabet ve Mesleki Uygulama dersine göredir. Her metnin kaynağı altında yazılıdır. Bir yanlış görürsen bize yaz.</string>
+    <string name="about_section_app">Uygulama</string>
+    <string name="about_contact">İletişim</string>
+    <string name="about_licenses">Açık kaynak lisansları</string>
+    <string name="about_licenses_text">Bu uygulama şu kütüphaneleri kullanır:\n\nAndroidX (Jetpack Compose, Activity, Core, Lifecycle, Navigation, Room, DataStore)\nApache License 2.0\n\nKotlin ve kotlinx.coroutines\nApache License 2.0\n\nGoogle Mobile Ads SDK ve User Messaging Platform\nGoogle Mobile Ads SDK Kullanım Koşulları\n\nGoogle Play In-App Review\nPlay Core Yazılım Geliştirme Kiti Hizmet Şartları\n\nApache License 2.0: https://www.apache.org/licenses/LICENSE-2.0</string>
     <string name="prayer_sabah">Sabah</string>
     <string name="prayer_ogle">Öğle</string>
     <string name="prayer_ikindi">İkindi</string>

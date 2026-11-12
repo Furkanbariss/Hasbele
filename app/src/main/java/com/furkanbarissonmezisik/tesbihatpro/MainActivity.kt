@@ -41,7 +41,8 @@ class MainActivity : ComponentActivity() {
                 onDispose {}
             }
             TesbihatProTheme(darkTheme = darkTheme) {
-                AppNavHost()
+                // Ayarlar yukarıda beklendiği için ilk karede doğru değer okunur.
+                AppNavHost(showWelcome = !settings.welcomeSeen)
             }
         }
     }

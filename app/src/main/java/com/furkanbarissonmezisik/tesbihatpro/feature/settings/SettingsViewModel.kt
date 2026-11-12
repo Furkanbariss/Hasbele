@@ -11,13 +11,11 @@ import com.furkanbarissonmezisik.tesbihatpro.core.ads.AdsController
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SettingsRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.AppSettings
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.ThemeMode
-import com.furkanbarissonmezisik.tesbihatpro.core.review.ReviewController
 import kotlinx.coroutines.flow.StateFlow
 
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     val adsController: AdsController,
-    private val reviewController: ReviewController,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
@@ -46,8 +44,6 @@ class SettingsViewModel(
 
     fun onPrivacyOptions(activity: Activity) = adsController.showPrivacyOptions(activity)
 
-    fun onRateApp(activity: Activity) = reviewController.openStorePage(activity)
-
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -55,7 +51,6 @@ class SettingsViewModel(
                 SettingsViewModel(
                     settingsRepository = container.settingsRepository,
                     adsController = container.adsController,
-                    reviewController = container.reviewController,
                 )
             }
         }
