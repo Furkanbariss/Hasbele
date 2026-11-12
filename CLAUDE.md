@@ -43,6 +43,7 @@ Tek Activity, Jetpack Compose ve MVVM ile tek modüllü bir uygulama; kütüphan
 | Ses | `SoundPool` | Düşük gecikmeli tık sesi |
 | Titreşim | `VibrationEffect` | API 26+ |
 | Reklam | Google Mobile Ads (AdMob) + UMP onay SDK'sı | Banner ve AB onayı |
+| Değerlendirme | Google Play In-App Review (`com.google.android.play:review`) | Kullanıcının isteği; Play'den çıkmadan puan verme. `review-ktx` R8'de eksik sınıf hatası verdiği için kullanılmaz |
 | Test | JUnit + kotlinx-coroutines-test | Motor ve ViewModel testleri |
 | minSdk | 26 (Android 8.0) | `VibrationEffect` ve `java.time` doğrudan kullanılır |
 | compileSdk / targetSdk | Android Studio şablonunun verdiği | Play'in güncel hedef API şartı |
@@ -68,16 +69,18 @@ app/src/main/java/com/furkanbarissonmezisik/tesbihatpro/
 ├── core/
 │   ├── domain/               // SAF KOTLIN: android.* / androidx.* import'u yasak
 │   │   ├── model/            // Zikir, TesbihatStep, CounterState
-│   │   └── engine/           // CounterEngine, CounterEvent, CounterEffect
+│   │   ├── engine/           // CounterEngine, CounterEvent, CounterEffect
+│   │   └── review/           // ReviewPolicy: değerlendirme ne zaman sorulur
 │   ├── content/
 │   │   └── PresetContent.kt  // hazır zikirler ve tesbihat; tüm dini metinler burada
 │   ├── data/
 │   │   ├── db/               // AppDatabase, entity'ler, DAO'lar
-│   │   ├── prefs/            // SettingsStore, SessionStore (DataStore)
+│   │   ├── prefs/            // SettingsStore, SessionStore, ReviewStore (DataStore)
 │   │   └── repository/       // ZikirRepository, HistoryRepository, SettingsRepository, SessionRepository
 │   ├── feedback/             // HapticsController, SoundController
 │   ├── input/                // VolumeKeyDispatcher
 │   ├── ads/                  // AdsController (arayüz), AdMobAdsController, ConsentManager
+│   ├── review/               // ReviewController (arayüz), PlayReviewController
 │   └── ui/                   // theme/, components/ (BannerAd vb.)
 └── feature/
     ├── counter/              // CounterScreen, CounterViewModel, TesbihBeads (Canvas), DimOverlay
@@ -196,8 +199,8 @@ Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ek
 | --- | --- | --- |
 | Tesbih (başlangıç) | Boncuklar, büyük sayı, adımın Arapçası ve okunuşu, adım göstergesi (1/3), geri al, sıfırla, karartma düğmesi | Yok |
 | Zikirler | En üstte "Namaz sonrası tesbihat", altında hazır ve kendi zikirlerin; ekle, düzenle, sil (hazırlar hariç) | Yok |
-| Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları | Banner |
-| Ayarlar | Ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster, gizlilik seçenekleri, gizlilik politikası, hakkında | Banner |
+| Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Banner |
+| Ayarlar | Ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster, gizlilik seçenekleri, gizlilik politikası, uygulamayı değerlendir, hakkında | Banner |
 
 **Tesbih boncukları (`TesbihBeads`)**
 
@@ -226,12 +229,19 @@ Uygulama Tesbih ekranıyla açılır ve bu ekranda reklam yoktur; diğer üç ek
 **Ekranı açık tutma ve karartma**
 
 - `keepScreenOn` açıkken yalnızca Tesbih ekranında `FLAG_KEEP_SCREEN_ON` uygulanır. Bayrak doğrudan pencereye yazılır; `View.keepScreenOn` durgun ekranda kalkmayabilir.
-- Karartma modu: tam ekran siyah katman + pencere parlaklığı 0.01. Dokunma ve ses tuşları saymaya devam eder; çıkış 1 saniyelik uzun basmayla yapılır. Dokunuş burada son parmak kalkınca sayılır, çıkış için yapılan uzun basış sayılmaz; çoklu dokunuş burada da tek sayımdır. `keepScreenOn` kapalı olsa da ekran açık kalır. Sistem çubukları gizlenmez: gizlemek Android'in "tam ekran" uyarısını açar ve ilk dokunuşu yutar.
+- Karartma modu: tam ekran siyah katman + pencere parlaklığı 0.01. Dokunma ve ses tuşları saymaya devam eder; çıkış 1 saniyelik uzun basmayla yapılır. Dokunuş burada son parmak kalkınca sayılır, çıkış için yapılan uzun basış sayılmaz; çoklu dokunuş burada da tek sayımdır. "Çıkmak için 1 saniye basılı tutun" uyarısı 4 saniye görünür; parlaklık uyarıyı beklemeden hemen düşer. `keepScreenOn` kapalı olsa da ekran açık kalır. Sistem çubukları gizlenmez: gizlemek Android'in "tam ekran" uyarısını açar ve ilk dokunuşu yutar.
 
 **Dil ve erişilebilirlik**
 
 - Varsayılan `values/` İngilizce, `values-tr/` Türkçe. Arapça metinler string kaynağı değil, `PresetContent` verisidir.
 - TalkBack sayıyı ve adımı okur ("Sübhânallah, 12 / 33"); sistem yazı boyutuna uyum sağlanır.
+
+**Değerlendirme (Google Play In-App Review)**
+
+- Pencere yalnız Geçmiş ekranı açılınca denenir; Tesbih ve Zikirler'de, yani ibadet sırasında hiç çıkmaz.
+- Koşul (`ReviewPolicy`): son 30 günde en az 3 farklı günde sayım yapılmış olmalı ve son denemeden en az 30 gün geçmiş olmalı. Deneme tarihi `ReviewStore`'da tutulur; pencere çıkmasa da deneme sayılır.
+- Google kendi kotasıyla da sınırlar; uygulama Play'den kurulmadıysa pencere hiç çıkmaz. Bu yüzden düğmeyle açılmaz.
+- Ayarlar'daki "Uygulamayı değerlendir" satırı pencere yerine Google Play sayfasını açar; her zaman çalışır.
 
 ## Reklam
 

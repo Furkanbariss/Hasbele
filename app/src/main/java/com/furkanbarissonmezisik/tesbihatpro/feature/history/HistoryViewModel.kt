@@ -8,17 +8,24 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.furkanbarissonmezisik.tesbihatpro.TesbihApp
 import com.furkanbarissonmezisik.tesbihatpro.core.ads.AdsController
+import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.ReviewStore
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.HistoryRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SettingsRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.ZikirRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.AppSettings
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.DailyCount
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.Zikir
+import com.furkanbarissonmezisik.tesbihatpro.core.domain.review.ReviewPolicy
+import com.furkanbarissonmezisik.tesbihatpro.core.review.ReviewController
 import java.time.LocalDate
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class HistoryEntry(
     /** null = zikir sonradan silinmiş */
@@ -70,11 +77,33 @@ class HistoryViewModel(
     zikirRepository: ZikirRepository,
     val adsController: AdsController,
     settingsRepository: SettingsRepository,
+    val reviewController: ReviewController,
+    reviewStore: ReviewStore,
     today: LocalDate = LocalDate.now(),
 ) : ViewModel() {
 
     /** Reklamlar Ayarlar'dan kapatıldıysa banner gösterilmez. */
     val settings: StateFlow<AppSettings> = settingsRepository.settings
+
+    private val _reviewDue = MutableStateFlow(false)
+
+    /** true olunca ekran Google Play'in değerlendirme penceresini bir kez dener. */
+    val reviewDue: StateFlow<Boolean> = _reviewDue.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val counts = historyRepository.observeSince(today.minusDays(DAYS_SHOWN - 1)).first()
+            if (ReviewPolicy.shouldAsk(counts, reviewStore.lastAskedOn(), today)) {
+                // Pencere Google kotası yüzünden çıkmasa da deneme sayılır, 30 gün beklenir.
+                reviewStore.markAsked(today)
+                _reviewDue.value = true
+            }
+        }
+    }
+
+    fun onReviewRequested() {
+        _reviewDue.value = false
+    }
 
     val uiState: StateFlow<HistoryUiState> = combine(
         historyRepository.observeSince(today.minusDays(DAYS_SHOWN - 1)),
@@ -95,6 +124,8 @@ class HistoryViewModel(
                     zikirRepository = container.zikirRepository,
                     adsController = container.adsController,
                     settingsRepository = container.settingsRepository,
+                    reviewController = container.reviewController,
+                    reviewStore = container.reviewStore,
                 )
             }
         }

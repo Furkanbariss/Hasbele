@@ -27,7 +27,8 @@ import com.furkanbarissonmezisik.tesbihatpro.R
 import kotlinx.coroutines.delay
 
 private const val EXIT_HOLD_MILLIS = 1_000L
-private const val HINT_MILLIS = 3_000L
+// Uyarı yalnız yazıdır; ekran karartma açılır açılmaz en düşük parlaklığa iner, uyarıyı beklemez.
+private const val HINT_MILLIS = 4_000L
 
 /**
  * Normal ekranda dokunuş parmak iner inmez sayılır; burada çıkış uzun basışla yapıldığı için sayım

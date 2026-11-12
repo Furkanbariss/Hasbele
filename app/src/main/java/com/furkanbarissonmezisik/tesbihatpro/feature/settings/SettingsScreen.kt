@@ -67,7 +67,8 @@ fun SettingsRoute(
         onBeadStyleChange = viewModel::onBeadStyleChange,
         onAdsChange = viewModel::onAdsChange,
         onPrivacyOptions = { viewModel.onPrivacyOptions(view.context.findActivity()) },
-        adBanner = { BannerAd(viewModel.adsController, enabled = settings.adsEnabled) },
+        onRateApp = { viewModel.onRateApp(view.context.findActivity()) },
+        adBanner ={ BannerAd(viewModel.adsController, enabled = settings.adsEnabled) },
     )
 }
 
@@ -85,6 +86,7 @@ fun SettingsScreen(
     onBeadStyleChange: (String) -> Unit,
     onAdsChange: (Boolean) -> Unit,
     onPrivacyOptions: () -> Unit,
+    onRateApp: () -> Unit,
     adBanner: @Composable () -> Unit = {},
 ) {
     var showPrivacyPolicy by rememberSaveable { mutableStateOf(false) }
@@ -179,6 +181,13 @@ fun SettingsScreen(
                 ListItem(
                     modifier = Modifier.clickable { showPrivacyPolicy = true },
                     headlineContent = { Text(stringResource(R.string.settings_privacy_policy)) },
+                )
+            }
+            item {
+                ListItem(
+                    modifier = Modifier.clickable(onClick = onRateApp),
+                    headlineContent = { Text(stringResource(R.string.settings_rate_app)) },
+                    supportingContent = { Text(stringResource(R.string.settings_rate_app_hint)) },
                 )
             }
             item {

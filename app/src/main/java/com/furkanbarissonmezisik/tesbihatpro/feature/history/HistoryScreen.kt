@@ -16,12 +16,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -30,6 +32,7 @@ import com.furkanbarissonmezisik.tesbihatpro.R
 import com.furkanbarissonmezisik.tesbihatpro.core.ui.components.BannerAd
 import com.furkanbarissonmezisik.tesbihatpro.core.ui.components.DetailTopBar
 import com.furkanbarissonmezisik.tesbihatpro.core.ui.components.SectionTitle
+import com.furkanbarissonmezisik.tesbihatpro.core.ui.components.findActivity
 import com.furkanbarissonmezisik.tesbihatpro.core.ui.displayTransliteration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -42,6 +45,14 @@ fun HistoryRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val settings by viewModel.settings.collectAsState()
+    val reviewDue by viewModel.reviewDue.collectAsState()
+    val view = LocalView.current
+    LaunchedEffect(reviewDue) {
+        if (reviewDue) {
+            viewModel.reviewController.requestReview(view.context.findActivity())
+            viewModel.onReviewRequested()
+        }
+    }
     HistoryScreen(
         uiState = uiState,
         onBack = onBack,

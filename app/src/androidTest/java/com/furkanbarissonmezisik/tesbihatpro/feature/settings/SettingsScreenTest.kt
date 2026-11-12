@@ -33,6 +33,7 @@ class SettingsScreenTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     private var privacyClicks = 0
+    private var rateClicks = 0
 
     private fun show(
         initial: AppSettings = AppSettings(),
@@ -54,6 +55,7 @@ class SettingsScreenTest {
                     onThemeChange = { settings = settings.copy(theme = it) },
                     onBeadStyleChange = { settings = settings.copy(beadStyleId = it) },
                     onAdsChange = { settings = settings.copy(adsEnabled = it) },
+                    onRateApp = { rateClicks++ },
                 )
             }
         }
@@ -177,6 +179,16 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText(context.getString(R.string.action_close)).performClick()
         composeRule.onNodeWithText(text).assertDoesNotExist()
+    }
+
+    @Test
+    fun rateRowOpensTheStorePage() {
+        show()
+
+        scrollTo(R.string.settings_rate_app)
+        row(R.string.settings_rate_app).performClick()
+
+        assertEquals(1, rateClicks)
     }
 
     @Test

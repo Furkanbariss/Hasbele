@@ -137,7 +137,7 @@ class DimOverlayTest {
     }
 
     @Test
-    fun exitHintDisappearsAfterAFewSeconds() {
+    fun exitHintStaysForFourSeconds() {
         val hint = context.getString(R.string.dim_exit_hint)
         composeRule.mainClock.autoAdvance = false
         show()
@@ -145,7 +145,10 @@ class DimOverlayTest {
 
         composeRule.onNodeWithText(hint).assertExists()
 
-        composeRule.mainClock.advanceTimeBy(3_100)
+        composeRule.mainClock.advanceTimeBy(3_500)
+        composeRule.onNodeWithText(hint).assertExists()
+
+        composeRule.mainClock.advanceTimeBy(600)
         composeRule.onNodeWithText(hint).assertDoesNotExist()
     }
 }

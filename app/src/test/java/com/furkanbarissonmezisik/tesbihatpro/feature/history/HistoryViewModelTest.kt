@@ -8,6 +8,8 @@ import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.DailyCount
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeAdsController
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeContentVersionStore
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeDailyCountDao
+import com.furkanbarissonmezisik.tesbihatpro.testing.FakeReviewController
+import com.furkanbarissonmezisik.tesbihatpro.testing.FakeReviewStore
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeSettingsStore
 import com.furkanbarissonmezisik.tesbihatpro.testing.FakeZikirDao
 import java.time.LocalDate
@@ -38,6 +40,7 @@ class HistoryViewModelTest {
     private val zikirs = PresetContent.zikirs
     private val dao = FakeDailyCountDao()
     private val settingsStore = FakeSettingsStore()
+    private val reviewStore = FakeReviewStore()
 
     @Before
     fun setUp() = Dispatchers.setMain(mainDispatcher)
@@ -58,6 +61,8 @@ class HistoryViewModelTest {
             ),
             adsController = FakeAdsController(),
             settingsRepository = SettingsRepository(settingsStore, backgroundScope),
+            reviewController = FakeReviewController(),
+            reviewStore = reviewStore,
             today = today,
         )
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -180,4 +185,48 @@ class HistoryViewModelTest {
 
         assertFalse(viewModel.settings.value.adsEnabled)
     }
+
+    private fun countOnDays(vararg daysAgo: Long) =
+        daysAgo.forEach { dao.put(today.minusDays(it).toString(), 1, 5) }
+
+    @Test
+    fun `review is asked after counting on three different days`() = runTest(mainDispatcher) {
+        countOnDays(0, 1, 4)
+
+        val viewModel = createViewModel(repository())
+
+        assertTrue(viewModel.reviewDue.value)
+        assertEquals(today, reviewStore.lastAsked)
+    }
+
+    @Test
+    fun `review waits for a third counted day`() = runTest(mainDispatcher) {
+        countOnDays(0, 1)
+
+        val viewModel = createViewModel(repository())
+
+        assertFalse(viewModel.reviewDue.value)
+        assertNull(reviewStore.lastAsked)
+    }
+
+    @Test
+    fun `review is not asked again within thirty days`() = runTest(mainDispatcher) {
+        countOnDays(0, 1, 4)
+        reviewStore.lastAsked = today.minusDays(29)
+
+        val viewModel = createViewModel(repository())
+
+        assertFalse(viewModel.reviewDue.value)
+    }
+
+    @Test
+    fun `requested review is not repeated while the screen stays open`() =
+        runTest(mainDispatcher) {
+            countOnDays(0, 1, 4)
+            val viewModel = createViewModel(repository())
+
+            viewModel.onReviewRequested()
+
+            assertFalse(viewModel.reviewDue.value)
+        }
 }

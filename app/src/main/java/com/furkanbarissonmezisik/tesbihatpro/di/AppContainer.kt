@@ -6,8 +6,10 @@ import com.furkanbarissonmezisik.tesbihatpro.core.ads.AdsController
 import com.furkanbarissonmezisik.tesbihatpro.core.ads.UmpConsentManager
 import com.furkanbarissonmezisik.tesbihatpro.core.data.db.AppDatabase
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreContentVersionStore
+import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreReviewStore
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreSessionStore
 import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.DataStoreSettingsStore
+import com.furkanbarissonmezisik.tesbihatpro.core.data.prefs.ReviewStore
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.HistoryRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SessionRepository
 import com.furkanbarissonmezisik.tesbihatpro.core.data.repository.SettingsRepository
@@ -17,6 +19,8 @@ import com.furkanbarissonmezisik.tesbihatpro.core.feedback.SoundController
 import com.furkanbarissonmezisik.tesbihatpro.core.feedback.SoundPoolController
 import com.furkanbarissonmezisik.tesbihatpro.core.feedback.VibratorHapticsController
 import com.furkanbarissonmezisik.tesbihatpro.core.input.VolumeKeyDispatcher
+import com.furkanbarissonmezisik.tesbihatpro.core.review.PlayReviewController
+import com.furkanbarissonmezisik.tesbihatpro.core.review.ReviewController
 import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +54,8 @@ class AppContainer(context: Context) {
     val volumeKeyDispatcher = VolumeKeyDispatcher()
     val hapticsController: HapticsController = VibratorHapticsController(context)
     val soundController: SoundController = SoundPoolController(context)
+    val reviewController: ReviewController = PlayReviewController(context)
+    val reviewStore: ReviewStore = DataStoreReviewStore(context)
 
     fun flushPendingWrites() {
         applicationScope.launch { sessionRepository.flush() }
