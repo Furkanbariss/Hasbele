@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     val adsController: AdsController,
+    private val now: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
@@ -39,8 +40,13 @@ class SettingsViewModel(
     fun onBeadStyleChange(id: String) =
         settingsRepository.update { it.copy(beadStyleId = id) }
 
-    fun onAdsChange(enabled: Boolean) =
-        settingsRepository.update { it.copy(adsEnabled = enabled) }
+    /** Reklam yalnız rıza diyaloğunda "Kabul ediyorum" ile açılır; rızanın anı ispat için saklanır. */
+    fun onAdsConsentGiven() =
+        settingsRepository.update { it.copy(adsEnabled = true, adsConsentAt = now()) }
+
+    /** Kapatmak rızayı geri almaktır: reklam durur, kayıt silinir. */
+    fun onAdsTurnedOff() =
+        settingsRepository.update { it.copy(adsEnabled = false, adsConsentAt = null) }
 
     fun onPrivacyOptions(activity: Activity) = adsController.showPrivacyOptions(activity)
 

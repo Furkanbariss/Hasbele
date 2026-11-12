@@ -32,7 +32,7 @@ Geçmiş
 
 İbadet sırasında reklam yok
 - Tesbih, zikir ve müezzin ekranlarında hiç reklam yoktur.
-- Yalnız Geçmiş ve Ayarlar'da küçük bir banner vardır; Ayarlar'dan tamamen kapatabilirsin.
+- Reklamlar kapalı gelir. Uygulamayı desteklemek istersen Ayarlar'dan açabilirsin; o zaman yalnız Geçmiş ve Ayarlar'da küçük, kişiselleştirilmemiş bir banner görünür.
 
 Türkçe ve İngilizce arayüz. Hesap gerekmez, sayımların yalnız cihazında kalır.
 
@@ -64,7 +64,7 @@ History
 
 No ads during worship
 - The tasbih, dhikr and muezzin screens have no ads at all.
-- Only History and Settings show a small banner, and you can turn it off in Settings.
+- Ads are off by default. If you would like to support the app, turn them on in Settings; then only History and Settings show a small, non-personalised banner.
 
 Turkish and English interface. No account needed; your counts stay on your device.
 

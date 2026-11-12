@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.furkanbarissonmezisik.tesbihatpro.core.domain.model.AppSettings
@@ -52,6 +53,12 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                 preferences[Keys.THEME] = updated.theme.name
                 preferences[Keys.BEAD_STYLE] = updated.beadStyleId
                 preferences[Keys.ADS] = updated.adsEnabled
+                val consentAt = updated.adsConsentAt
+                if (consentAt == null) {
+                    preferences.remove(Keys.ADS_CONSENT_AT)
+                } else {
+                    preferences[Keys.ADS_CONSENT_AT] = consentAt
+                }
                 preferences[Keys.WELCOME_SEEN] = updated.welcomeSeen
             }
         } catch (exception: IOException) {
@@ -69,6 +76,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             theme = ThemeMode.entries.find { it.name == this[Keys.THEME] } ?: defaults.theme,
             beadStyleId = this[Keys.BEAD_STYLE] ?: defaults.beadStyleId,
             adsEnabled = this[Keys.ADS] ?: defaults.adsEnabled,
+            adsConsentAt = this[Keys.ADS_CONSENT_AT],
             welcomeSeen = this[Keys.WELCOME_SEEN] ?: defaults.welcomeSeen,
         )
     }
@@ -81,6 +89,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         val THEME = stringPreferencesKey("theme")
         val BEAD_STYLE = stringPreferencesKey("bead_style_id")
         val ADS = booleanPreferencesKey("ads_enabled")
+        val ADS_CONSENT_AT = longPreferencesKey("ads_consent_at")
         val WELCOME_SEEN = booleanPreferencesKey("welcome_seen")
     }
 }

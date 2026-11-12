@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -20,9 +23,13 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -56,9 +63,10 @@ fun SettingsRoute(
         onKeepScreenOnChange = viewModel::onKeepScreenOnChange,
         onThemeChange = viewModel::onThemeChange,
         onBeadStyleChange = viewModel::onBeadStyleChange,
-        onAdsChange = viewModel::onAdsChange,
+        onAdsConsentGiven = viewModel::onAdsConsentGiven,
+        onAdsTurnedOff = viewModel::onAdsTurnedOff,
         onPrivacyOptions = { viewModel.onPrivacyOptions(view.context.findActivity()) },
-        adBanner ={ BannerAd(viewModel.adsController, enabled = settings.adsEnabled) },
+        adBanner = { BannerAd(viewModel.adsController, enabled = settings.adsEnabled) },
     )
 }
 
@@ -73,10 +81,12 @@ fun SettingsScreen(
     onKeepScreenOnChange: (Boolean) -> Unit,
     onThemeChange: (ThemeMode) -> Unit,
     onBeadStyleChange: (String) -> Unit,
-    onAdsChange: (Boolean) -> Unit,
+    onAdsConsentGiven: () -> Unit,
+    onAdsTurnedOff: () -> Unit,
     onPrivacyOptions: () -> Unit,
     adBanner: @Composable () -> Unit = {},
 ) {
+    var askAdsConsent by rememberSaveable { mutableStateOf(false) }
     // Gizlilik politikası, değerlendirme ve sürüm Hakkında sayfasındadır; burada yalnız ayarlar durur.
     Scaffold(
         topBar = {
@@ -149,7 +159,8 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_ads),
                     hint = stringResource(R.string.settings_ads_hint),
                     checked = settings.adsEnabled,
-                    onChange = onAdsChange,
+                    // Açmak rıza ister; kapatmak rızayı hemen geri alır.
+                    onChange = { on -> if (on) askAdsConsent = true else onAdsTurnedOff() },
                 )
             }
             // Reklamlar kapalıyken onay hiçbir şey için kullanılmadığından giriş gizlenir.
@@ -164,6 +175,15 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+    if (askAdsConsent) {
+        AdsConsentDialog(
+            onAccept = {
+                askAdsConsent = false
+                onAdsConsentGiven()
+            },
+            onDecline = { askAdsConsent = false },
+        )
     }
 }
 
@@ -208,4 +228,46 @@ private fun <T> ChoiceRow(
             }
         }
     }
+}
+
+/**
+ * KVKK İlke Kararı 2026/347: aydınlatma ile açık rıza ayrı başlıkta durur, düğmeler yalnız rızayı
+ * cevaplar. Kabul ve ret eşit ağırlıktadır; ret hiçbir özelliği kısıtlamaz.
+ */
+@Composable
+private fun AdsConsentDialog(onAccept: () -> Unit, onDecline: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDecline,
+        title = { Text(stringResource(R.string.ads_consent_title)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.ads_consent_info_title),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = stringResource(R.string.ads_consent_info),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.ads_consent_statement_title),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = stringResource(R.string.ads_consent_statement),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onAccept) { Text(stringResource(R.string.ads_consent_accept)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDecline) { Text(stringResource(R.string.ads_consent_decline)) }
+        },
+    )
 }

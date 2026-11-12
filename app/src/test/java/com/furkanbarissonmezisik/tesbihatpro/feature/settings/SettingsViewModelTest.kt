@@ -10,6 +10,8 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -21,6 +23,7 @@ class SettingsViewModelTest {
         val viewModel = SettingsViewModel(
             SettingsRepository(store, backgroundScope),
             FakeAdsController(),
+            now = { CONSENT_TIME },
         )
         runCurrent()
         return viewModel
@@ -36,7 +39,8 @@ class SettingsViewModelTest {
             { viewModel.onKeepScreenOnChange(false) } to AppSettings(keepScreenOn = false),
             { viewModel.onThemeChange(ThemeMode.DARK) } to AppSettings(theme = ThemeMode.DARK),
             { viewModel.onBeadStyleChange("dark_wood") } to AppSettings(beadStyleId = "dark_wood"),
-            { viewModel.onAdsChange(false) } to AppSettings(adsEnabled = false),
+            { viewModel.onAdsConsentGiven() } to
+                AppSettings(adsEnabled = true, adsConsentAt = CONSENT_TIME),
         )
 
         changes.forEach { (change, expected) ->
@@ -51,6 +55,27 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `ads are off until consent is given`() = runTest {
+        viewModel()
+
+        assertFalse(store.current.adsEnabled)
+        assertNull(store.current.adsConsentAt)
+    }
+
+    @Test
+    fun `turning ads off withdraws the consent`() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAdsConsentGiven()
+        runCurrent()
+
+        viewModel.onAdsTurnedOff()
+        runCurrent()
+
+        assertFalse(store.current.adsEnabled)
+        assertNull(store.current.adsConsentAt)
+    }
+
+    @Test
     fun `screen follows the stored settings`() = runTest {
         val viewModel = viewModel()
 
@@ -60,3 +85,5 @@ class SettingsViewModelTest {
         assertEquals(ThemeMode.LIGHT, viewModel.settings.value.theme)
     }
 }
+
+private const val CONSENT_TIME = 1_000L

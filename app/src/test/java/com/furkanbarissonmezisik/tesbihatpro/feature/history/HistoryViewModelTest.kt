@@ -176,14 +176,14 @@ class HistoryViewModelTest {
     }
 
     @Test
-    fun `ads turned off in settings reach the history screen`() = runTest(mainDispatcher) {
+    fun `ads turned on in settings reach the history screen`() = runTest(mainDispatcher) {
         val viewModel = createViewModel(repository())
-        assertTrue(viewModel.settings.value.adsEnabled)
+        assertFalse("ads are off by default", viewModel.settings.value.adsEnabled)
 
-        settingsStore.update { it.copy(adsEnabled = false) }
+        settingsStore.update { it.copy(adsEnabled = true) }
         runCurrent()
 
-        assertFalse(viewModel.settings.value.adsEnabled)
+        assertTrue(viewModel.settings.value.adsEnabled)
     }
 
     private fun countOnDays(vararg daysAgo: Long) =

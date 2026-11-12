@@ -12,7 +12,7 @@ MVP, namaz sonrası tesbihatı ve serbest zikri dokunarak, titreşimle ve ses tu
 - Hazır zikirler ve kullanıcının kendi zikri, hedef sayısıyla
 - Ses tuşlarıyla sayma, ekranı açık tutma, karartma modu
 - Günlük geçmiş (zikir başına toplam)
-- Ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, reklamlar
+- Ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, reklamlar (varsayılan kapalı, açık rızayla açılır)
 - Türkçe ve İngilizce arayüz
 - AdMob banner (yalnız Geçmiş ve Ayarlar ekranında, Ayarlar'dan kapatılabilir); uygulama ücretsizdir, satın alma yoktur
 
@@ -182,7 +182,7 @@ Hazır zikirler ilk açılışta `PresetContent`'ten yüklenir. DataStore'daki `
 
 **DataStore**
 
-- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsEnabled, welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
+- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsEnabled, adsConsentAt (reklam rızasının anı), welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
 - `SessionStore`: aktif adım listesi (zikir id + hedef), stepIndex, count, completed, updatedAt
 
 **Sayımı kaybetmeme kuralı**
@@ -206,8 +206,8 @@ Tüm yazımlar `Dispatchers.IO`'da yapılır; dokunuşun ekrana ve titreşime ya
 | Tesbih (başlangıç) | Boncuklar, büyük sayı, adımın Arapçası ve okunuşu, adım göstergesi (1/3), geri al, sıfırla, karartma düğmesi | Yok |
 | Zikirler | En üstte "Namaz sonrası tesbihat", altında hazır ve kendi zikirlerin; ekle, düzenle, sil (hazırlar hariç) | Yok |
 | Müezzinlik (üst bardaki minare ikonu) | Vakit listesi, teşrik ve bayram sabahı seçenekleri; seçilen vaktin adım adım akışı (yönlendirme, Arapça, okunuş, meal, kaynak; İleri/Geri). Yarıda kalan akış açılışta kalınan adımdan sürer. Tesbihat adımındaki "Tesbihatı say" Tesbih ekranını tesbihatla sıfırdan açar (`requestSteps(..., restart = true)`); devir sürdükçe Tesbih ekranının altında "Müezzin akışına dön" görünür, tesbihat bittiyse akış sonraki adımdan sürer | Yok |
-| Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Banner |
-| Ayarlar | Yalnız ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster, gizlilik seçenekleri | Banner |
+| Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Banner (yalnız reklamlar açıksa) |
+| Ayarlar | Yalnız ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster (açarken rıza diyaloğu), gizlilik seçenekleri | Banner (yalnız reklamlar açıksa) |
 | Hakkında (menüden) | Uygulamanın amacı, müezzinlik rehberi, dini içerik ve kaynaklar (Diyanet notu), gizlilik ve gizlilik politikası, uygulamayı değerlendir, iletişim, açık kaynak lisansları, sürüm | Yok |
 
 **Tesbih boncukları (`TesbihBeads`)**
@@ -260,7 +260,9 @@ Tüm yazımlar `Dispatchers.IO`'da yapılır; dokunuşun ekrana ve titreşime ya
 
 Uygulama ücretsizdir ve hayır için yapılır; satın alma yoktur. Tek gelir Geçmiş ve Ayarlar ekranındaki banner'dır.
 
-**Reklamları kapatma**: Amaç kâr değildir; kullanıcı reklamları Ayarlar'daki "Reklamları göster" anahtarıyla kapatabilir, varsayılan açıktır. Kapalıyken banner kaldırılır; onay formu, SDK başlatma ve reklam isteği çalışmaz.
+**Reklamlar varsayılan kapalı, açık rızayla açılır**: Amaç kâr değildir; reklamlar kapalı gelir, uygulamayı desteklemek isteyen Ayarlar'daki "Reklamları göster" anahtarıyla açar. Anahtarı açmak KVKK açık rıza diyaloğunu getirir: aydınlatma ve açık rıza ayrı başlıkta durur (İlke Kararı 2026/347), "Kabul ediyorum" ve "Reddediyorum" eşit ağırlıktadır, ret hiçbir özelliği kısıtlamaz. Kabulde rızanın anı (`adsConsentAt`) cihazda saklanır; anahtarı kapatmak rızayı geri almaktır, kayıt silinir. Kapalıyken banner kaldırılır; onay formu, SDK başlatma ve reklam isteği çalışmaz.
+
+**Kişiselleştirme yok**: Reklam isteği her zaman `npa=1` ile kişiselleştirilmemiş gider. Dini bir uygulamanın kullanımı inancı belli edebilir (KVKK md. 6 özel nitelikli veri).
 
 **İbadet kuralı**: İbadet sırasında açılabilecek ekranlarda (Tesbih, Zikirler, ileride müezzin modu) reklam olmaz. Bu ekranlarda reklam kodu hiç çalışmaz, reklam için ağ trafiği de oluşmaz; yeni ekran eklerken bu soru sorulur.
 

@@ -52,7 +52,8 @@ class SettingsScreenTest {
                     onKeepScreenOnChange = { settings = settings.copy(keepScreenOn = it) },
                     onThemeChange = { settings = settings.copy(theme = it) },
                     onBeadStyleChange = { settings = settings.copy(beadStyleId = it) },
-                    onAdsChange = { settings = settings.copy(adsEnabled = it) },
+                    onAdsConsentGiven = { settings = settings.copy(adsEnabled = true) },
+                    onAdsTurnedOff = { settings = settings.copy(adsEnabled = false) },
                 )
             }
         }
@@ -135,7 +136,7 @@ class SettingsScreenTest {
 
     @Test
     fun privacyEntryOpensTheFormWhenRequired() {
-        show(privacyOptionsRequired = true)
+        show(AppSettings(adsEnabled = true), privacyOptionsRequired = true)
 
         scrollTo(R.string.settings_privacy_options)
         row(R.string.settings_privacy_options).performClick()
@@ -144,14 +145,43 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun adsAreOnUntilTurnedOff() {
+    fun adsAreOffAndAskForConsentBeforeTurningOn() {
         val settings = show()
 
         scrollTo(R.string.settings_ads)
-        row(R.string.settings_ads).assertIsOn()
+        row(R.string.settings_ads).assertIsOff()
         row(R.string.settings_ads).performClick()
 
+        row(R.string.ads_consent_statement).assertExists()
+        assertEquals("ads stay off until consent", false, settings().adsEnabled)
+
+        row(R.string.ads_consent_accept).performClick()
+
+        row(R.string.ads_consent_statement).assertDoesNotExist()
+        row(R.string.settings_ads).assertIsOn()
+    }
+
+    @Test
+    fun decliningConsentKeepsAdsOff() {
+        val settings = show()
+
+        scrollTo(R.string.settings_ads)
+        row(R.string.settings_ads).performClick()
+        row(R.string.ads_consent_decline).performClick()
+
+        row(R.string.ads_consent_statement).assertDoesNotExist()
         row(R.string.settings_ads).assertIsOff()
+        assertEquals(false, settings().adsEnabled)
+    }
+
+    @Test
+    fun turningAdsOffNeedsNoDialog() {
+        val settings = show(AppSettings(adsEnabled = true))
+
+        scrollTo(R.string.settings_ads)
+        row(R.string.settings_ads).performClick()
+
+        row(R.string.ads_consent_statement).assertDoesNotExist()
         assertEquals(false, settings().adsEnabled)
     }
 

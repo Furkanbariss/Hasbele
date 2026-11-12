@@ -10,8 +10,10 @@ data class AppSettings(
     val keepScreenOn: Boolean = true,
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val beadStyleId: String = DEFAULT_BEAD_STYLE_ID,
-    // Uygulama kâr için yapılmadı; kullanıcı reklamları Ayarlar'dan kapatabilir.
-    val adsEnabled: Boolean = true,
+    // Uygulama hayır için yapıldı: reklam kapalı gelir, desteklemek isteyen açık rızayla açar.
+    val adsEnabled: Boolean = false,
+    /** Reklam için açık rızanın verildiği an (epoch ms); KVKK'da ispat yükü bizde. Kapatınca silinir. */
+    val adsConsentAt: Long? = null,
     /** İlk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada durur. */
     val welcomeSeen: Boolean = false,
 ) {

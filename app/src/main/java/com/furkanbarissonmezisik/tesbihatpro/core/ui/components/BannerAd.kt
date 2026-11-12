@@ -1,5 +1,6 @@
 package com.furkanbarissonmezisik.tesbihatpro.core.ui.components
 
+import android.os.Bundle
 import android.util.Log
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.furkanbarissonmezisik.tesbihatpro.BuildConfig
 import com.furkanbarissonmezisik.tesbihatpro.core.ads.AdsController
+import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -31,7 +33,7 @@ private const val TAG = "BannerAd"
  * Yalnız Geçmiş ve Ayarlar'da kullanılır. İbadet sırasında açılabilecek ekranlara konmaz; bu kural
  * Tesbih ve Zikirler'de reklam kodunun hiç çalışmamasına da dayanır.
  *
- * [enabled] kullanıcının Ayarlar'daki seçimidir. Kapalıyken onay formu açılmaz, SDK başlatılmaz ve
+ * [enabled] kullanıcının Ayarlar'da açık rızayla verdiği seçimdir; varsayılan kapalıdır. Kapalıyken onay formu açılmaz, SDK başlatılmaz ve
  * reklam istenmez; açık banner da kaldırılır.
  */
 @Composable
@@ -73,7 +75,7 @@ private fun AnchoredBanner(modifier: Modifier) {
                             failed = true
                         }
                     }
-                    loadAd(AdRequest.Builder().build())
+                    loadAd(nonPersonalizedRequest())
                 }
             },
             modifier = Modifier
@@ -83,3 +85,12 @@ private fun AnchoredBanner(modifier: Modifier) {
         )
     }
 }
+
+/**
+ * Reklamlar hiçbir zaman kişiselleştirilmez: dini bir uygulamanın kullanımı kişinin inancını belli
+ * edebilir (KVKK md. 6), bu yüzden ilgi alanı profili için veri kullanılmasın.
+ */
+private fun nonPersonalizedRequest(): AdRequest =
+    AdRequest.Builder()
+        .addNetworkExtrasBundle(AdMobAdapter::class.java, Bundle().apply { putString("npa", "1") })
+        .build()

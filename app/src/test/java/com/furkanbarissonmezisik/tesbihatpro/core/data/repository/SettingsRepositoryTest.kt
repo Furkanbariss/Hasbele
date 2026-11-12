@@ -16,7 +16,7 @@ import org.junit.Test
 class SettingsRepositoryTest {
 
     @Test
-    fun `defaults start silent and keep the other features on`() {
+    fun `defaults start silent and ad-free and keep the other features on`() {
         assertEquals(
             AppSettings(
                 soundEnabled = false,
@@ -25,7 +25,8 @@ class SettingsRepositoryTest {
                 keepScreenOn = true,
                 theme = ThemeMode.SYSTEM,
                 beadStyleId = "amber",
-                adsEnabled = true,
+                adsEnabled = false,
+                adsConsentAt = null,
                 welcomeSeen = false,
             ),
             AppSettings(),
