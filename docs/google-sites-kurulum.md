@@ -6,7 +6,7 @@ Alan adı almadan, `virata.software@gmail.com` hesabıyla, ücretsiz. Sonuç adr
 
 1. Tarayıcıda yalnız `virata.software@gmail.com` hesabıyla giriş yap (başka hesapla giriş yapılı kalmasın; kişisel adın site sahibi olarak görünmesin).
 2. https://sites.google.com adresine git, "Boş site" ile yeni site oluştur.
-3. Site adını kişisel ad içermeyecek biçimde ver: örneğin "Virata" ya da "Hamdele". Sol üstteki site adı alanına yaz. Sayfa başlığına ve alt bilgiye kendi adını yazma.
+3. Site adını kişisel ad içermeyecek biçimde ver: örneğin "Virata" ya da "Hasbele". Sol üstteki site adı alanına yaz. Sayfa başlığına ve alt bilgiye kendi adını yazma.
 4. İlk sayfayı "Gizlilik politikası" olarak adlandır. `docs/gizlilik-politikasi.md` dosyasındaki Türkçe bölümü yapıştır. İngilizce bölümü aynı sayfanın altına ekleyebilir ya da ikinci bir sayfa ("Privacy policy") yapabilirsin. Başlıkları "Başlık" biçimiyle, madde işaretlerini liste olarak ayarla. Bakımcı notunu (en üstteki alıntı) yapıştırma.
 5. "Destek / İletişim" adında yeni sayfa ekle. İçine yalnız şunu yaz: "Sorularınız ve KVKK başvurularınız için: virata.software@gmail.com". Form ekleme: ad ve e-posta toplayan bir form, ek veri işleme ve ek KVKK yükümlülüğü (yeni aydınlatma, saklama, silme) doğurur. Düz e-posta adresi yeterlidir.
 6. Sağ üstten "Yayınla"ya bas, "web adresi" kutusuna kısa bir ad gir (örn. `virata-software`); adres `https://sites.google.com/view/virata-software` olur.
@@ -19,10 +19,10 @@ Alan adı almadan, `virata.software@gmail.com` hesabıyla, ücretsiz. Sonuç adr
 
 AdMob, reklam satıcılarını doğrulamak için geliştirici web sitesinin kökünde (`alanadi/app-ads.txt`) bir `app-ads.txt` dosyası arar. Google Sites'ın köküne dosya konamadığı için bu iş için kullanılamaz.
 
-Karar (13 Kasım 2026): Zaten yayında olan `https://furkanbariss.github.io/app-ads.txt` kullanılır. Dosya AdMob yayıncı kimliğine bağlıdır, uygulamaya değil; aynı AdMob hesabındaki Hamdele'yi de kapsar, yeni satır eklemek gerekmez.
+Karar (13 Kasım 2026): Zaten yayında olan `https://furkanbariss.github.io/app-ads.txt` kullanılır. Dosya AdMob yayıncı kimliğine bağlıdır, uygulamaya değil; aynı AdMob hesabındaki Hasbele'yi de kapsar, yeni satır eklemek gerekmez.
 
-- Play Console'da Hamdele'nin "Web sitesi" alanına `https://furkanbariss.github.io` yaz. Play'deki web sitesi ile app-ads.txt'nin bulunduğu alan adı aynı olmalıdır.
-- Gizlilik politikası da aynı siteye konabilir: `docs/site/hamdele/privacy.html` dosyasını depoda `hamdele/privacy.html` olarak yayınla; adres `https://furkanbariss.github.io/hamdele/privacy.html` olur. Böyle yapılırsa Google Sites gerekmez; yukarıdaki Google Sites adımları yalnız istersen kullanılır.
+- Play Console'da Hasbele'nin "Web sitesi" alanına `https://furkanbariss.github.io` yaz. Play'deki web sitesi ile app-ads.txt'nin bulunduğu alan adı aynı olmalıdır.
+- Gizlilik politikası da aynı siteye konabilir: `docs/site/hasbele/privacy.html` dosyasını depoda `hasbele/privacy.html` olarak yayınla; adres `https://furkanbariss.github.io/hasbele/privacy.html` olur. Böyle yapılırsa Google Sites gerekmez; yukarıdaki Google Sites adımları yalnız istersen kullanılır.
 - Bilinçli bir taviz: adres `furkanbariss` kullanıcı adını gösterir. Play kişisel hesaplarda yasal adı zaten gösterdiği için ek bir ifşa sayılmaz, ama bilinmeli.
 
 

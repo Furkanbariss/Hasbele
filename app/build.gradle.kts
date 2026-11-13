@@ -15,13 +15,13 @@ val testAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
 val testNativeUnitId = "ca-app-pub-3940256099942544/2247696110"
 
 android {
-    namespace = "com.virata.hamdele"
+    namespace = "com.virata.hasbele"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.virata.hamdele"
+        applicationId = "com.virata.hasbele"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

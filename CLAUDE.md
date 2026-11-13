@@ -3,7 +3,7 @@
 
 ## Amaç ve kapsam
 
-Uygulamanın adı **Hamdele** (mağaza başlığı "Hamdele: Tesbih ve Müezzin"), paket adı `com.virata.hamdele`. Geliştiricinin Google Play'deki adı "Virata"dır; bu bir mahlastır, şirket değildir. İletişim: virata.software@gmail.com. Eski çalışma adı "Tesbihat Pro" iki mağazada da başka uygulamalarca kullanıldığı için 13 Kasım 2026'da bırakıldı. Proje klasörü, `TesbihatProTheme` gibi iç adlar kullanıcıya görünmediği için değiştirilmedi.
+Uygulamanın adı **Hasbele** (mağaza başlığı "Hasbele: Tesbih ve Müezzin"), paket adı `com.virata.hasbele`. Geliştiricinin Google Play'deki adı "Virata"dır; bu bir mahlastır, şirket değildir. İletişim: virata.software@gmail.com. Eski çalışma adı "Tesbihat Pro" iki mağazada da başka uygulamalarca kullanıldığı için 13 Kasım 2026'da bırakıldı. Ardından seçilen "Hamdele" TÜRKPATENT'te başkası adına tescilli çıktığı için (2021/187592) o da bırakıldı; "Hasbele"yi kullanıcı TÜRKPATENT'te sorguladı, boş. Proje klasörü, `TesbihatProTheme` gibi iç adlar kullanıcıya görünmediği için değiştirilmedi.
 
 MVP, namaz sonrası tesbihatı ve serbest zikri dokunarak, titreşimle ve ses tuşlarıyla sayan, sayımı asla kaybetmeyen bir Android tesbih uygulamasıdır. Hedef, 8 Şubat 2027'de başlayan Ramazan'dan önce yayında olmaktır.
 
@@ -61,7 +61,7 @@ Tek `app` modülü, özellik bazlı paketler; `core/domain` ve `core/content` An
 Dokunuş ekrana ve titreşime aynı karede yansır; diske yazma 300 ms gecikmeyle arka planda yapılır, bu yüzden hızlı sayımda takılma olmaz.
 
 ```
-app/src/main/java/com/virata/hamdele/
+app/src/main/java/com/virata/hasbele/
 ├── TesbihApp.kt              // Application; AppContainer'ı kurar
 ├── MainActivity.kt           // tek Activity; ses tuşlarını yönlendirir
 ├── di/
@@ -378,14 +378,14 @@ Müezzin modu, saat uygulaması ve yeni tesbih modelleri için MVP'de ek kod yaz
 
 Bunlar kod dışı işlerdir ve senin yapman gerekir; hedef, Ramazan'dan önce sıralama toplamak için Jan 15, 2027 tarihinde yayında olmak.
 
-- [x] Paket adı kesinleşti: `com.virata.hamdele` (Play'de sonradan değiştirilemez)
+- [x] Paket adı kesinleşti: `com.virata.hasbele` (Play'de sonradan değiştirilemez)
 - [ ] Hazır zikir metinleri Diyanet kaynaklarından kontrol edildi
 - [ ] Müezzin metinleri (özellikle elle yazılan Arapçalar) bir hoca ya da müftülükçe kontrol edildi (`docs/muezzin-icerik-kaynaklari.md`)
 - [ ] Diyanet'in uzun meallerini (örn. Kur'an Yolu meali, İlmihal'deki dua anlamları) uygulamaya koymak istersen Dini Yayınlar Dairesi'nden yazılı izin alındı. Şu anki içerik izin gerektirmez: Arapça metinler ve resmî genelgeler telife konu değil, uzun mealler konmadı, yalnız kaynakları gösteriliyor. Diyanet'in adı yalnız kaynak olarak geçer, resmî uygulama izlenimi verilmez
 - [ ] AdMob: gerçek ID'ler yalnız release derlemesinde; hassas kategoriler engellendi
 - [ ] UMP onay formu AB bölgesi simülasyonuyla (debug geography) test edildi
 - [ ] Play'de "Web sitesi" `https://furkanbariss.github.io`; oradaki app-ads.txt aynı AdMob hesabı için zaten yayında (Google Sites olmaz; bkz. `docs/google-sites-kurulum.md`)
-- [ ] `docs/gizlilik-politikasi.md` herkese açık bir adreste (`furkanbariss.github.io/hamdele/privacy.html` ya da Google Sites) yayında (PDF olmaz); adres Play Console'a girildi. Metin değişirse uygulamadaki `privacy_policy_text` de değişir
+- [ ] `docs/gizlilik-politikasi.md` herkese açık bir adreste (`furkanbariss.github.io/hasbele/privacy.html` ya da Google Sites) yayında (PDF olmaz); adres Play Console'a girildi. Metin değişirse uygulamadaki `privacy_policy_text` de değişir
 - [ ] Data safety formu reklam SDK'sının topladığı verilere göre dolduruldu (`docs/play-data-safety.md`)
 - [ ] Hedef kitle: çocuklara yönelik değil; içerik derecelendirme anketi tamamlandı
 - [ ] Kapalı test: 13 Kasım 2023'ten sonra açılmış kişisel hesapta en az 12 kullanıcıyla 14 gün; çökme ve sayım kaybı kontrol edildi

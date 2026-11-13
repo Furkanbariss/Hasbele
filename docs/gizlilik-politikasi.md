@@ -1,6 +1,6 @@
-> **Bakımcı notu (yayınlamadan önce sil):** Bu metin uygulamadaki `privacy_policy_text` string'i (TR ve EN) ile aynı olmalıdır. Herkese açık hâli `docs/site/hamdele/privacy.html`'dir; Google Sites kurulumu için `docs/google-sites-kurulum.md`'ye bak. Metin değişirse dört yer birlikte değişir: bu dosya, HTML, uygulama içi metin ve Google Sites sayfası.
+> **Bakımcı notu (yayınlamadan önce sil):** Bu metin uygulamadaki `privacy_policy_text` string'i (TR ve EN) ile aynı olmalıdır. Herkese açık hâli `docs/site/hasbele/privacy.html`'dir; Google Sites kurulumu için `docs/google-sites-kurulum.md`'ye bak. Metin değişirse dört yer birlikte değişir: bu dosya, HTML, uygulama içi metin ve Google Sites sayfası.
 
-# Hamdele gizlilik politikası ve KVKK aydınlatma metni
+# Hasbele gizlilik politikası ve KVKK aydınlatma metni
 
 Son güncelleme: 13 Kasım 2026
 
@@ -8,7 +8,7 @@ Son güncelleme: 13 Kasım 2026
 
 Virata. İletişim: virata.software@gmail.com
 
-Hamdele hayır için yapılmış ücretsiz bir uygulamadır. Hesap gerektirmez; adınızı, e-posta adresinizi veya konumunuzu istemez. Kendi sunucumuz yoktur.
+Hasbele hayır için yapılmış ücretsiz bir uygulamadır. Hesap gerektirmez; adınızı, e-posta adresinizi veya konumunuzu istemez. Kendi sunucumuz yoktur.
 
 ## Cihazınızda kalan veriler
 
@@ -61,7 +61,7 @@ Bu politikadaki değişiklikler burada yayımlanır; tarih yukarıda güncelleni
 
 ---
 
-# Hamdele privacy policy
+# Hasbele privacy policy
 
 Last updated: 13 November 2026
 
@@ -69,7 +69,7 @@ Last updated: 13 November 2026
 
 Virata. Contact: virata.software@gmail.com
 
-Hamdele is a free app made for charity. It needs no account and does not ask for your name, e-mail address or location. We run no server of our own.
+Hasbele is a free app made for charity. It needs no account and does not ask for your name, e-mail address or location. We run no server of our own.
 
 ## Data that stays on your device
 
@@ -126,13 +126,13 @@ Changes to this policy are published here and the date above is updated.
 
 ## TR
 
-Hamdele gizlilik politikası ve KVKK aydınlatma metni
+Hasbele gizlilik politikası ve KVKK aydınlatma metni
 
 Son güncelleme: 13 Kasım 2026
 
 Veri sorumlusu: Virata. İletişim: virata.software@gmail.com
 
-Hamdele hayır için yapılmış ücretsiz bir uygulamadır. Hesap gerektirmez; adınızı, e-posta adresinizi veya konumunuzu istemez. Kendi sunucumuz yoktur.
+Hasbele hayır için yapılmış ücretsiz bir uygulamadır. Hesap gerektirmez; adınızı, e-posta adresinizi veya konumunuzu istemez. Kendi sunucumuz yoktur.
 
 Cihazınızda kalan veriler: Sayımlarınız, zikirleriniz, günlük geçmişiniz, müezzinlik akışındaki yeriniz ve ayarlarınız yalnız cihazınızda tutulur, bize gönderilmez. Android yedeklemesi açıksa kendi Google hesabınızdaki yedeğe dahil olabilir. Silmek için uygulama verilerini temizleyin veya uygulamayı kaldırın.
 
@@ -156,13 +156,13 @@ Değişiklikler: Bu politikadaki değişiklikler yayımlanır ve yukarıdaki tar
 
 ## EN
 
-Hamdele privacy policy
+Hasbele privacy policy
 
 Last updated: 13 November 2026
 
 Data controller: Virata. Contact: virata.software@gmail.com
 
-Hamdele is a free app made for charity. It needs no account and does not ask for your name, e-mail address or location. We run no server of our own.
+Hasbele is a free app made for charity. It needs no account and does not ask for your name, e-mail address or location. We run no server of our own.
 
 Data that stays on your device: Your counts, dhikrs, daily history, your place in the muezzin guide and your settings are kept only on your device and are not sent to us. If Android backup is turned on, they may be included in the backup in your own Google account. To delete them, clear the app data or uninstall the app.
 

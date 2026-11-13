@@ -4,13 +4,13 @@ Play sınırları: uygulama adı 30, kısa açıklama 80, tam açıklama 4000 ka
 
 ## Türkçe
 
-**Uygulama adı:** Hamdele: Tesbih ve Müezzin
+**Uygulama adı:** Hasbele: Tesbih ve Müezzin
 
 **Kısa açıklama:** Zikirmatik tesbih, namaz sonrası tesbihat ve adım adım müezzinlik rehberi.
 
 **Tam açıklama:**
 
-Hamdele; namaz sonrası tesbihatı, serbest zikri ve müezzinliği tek uygulamada toplar. Ücretsizdir ve hayır için yapılmıştır.
+Hasbele; namaz sonrası tesbihatı, serbest zikri ve müezzinliği tek uygulamada toplar. Ücretsizdir ve hayır için yapılmıştır.
 
 Tesbih ve zikirmatik
 - Ekranın herhangi bir yerine dokunarak ya da ses tuşlarıyla say.
@@ -38,13 +38,13 @@ Türkçe ve İngilizce arayüz. Hesap gerekmez, sayımların yalnız cihazında 
 
 ## English
 
-**App name:** Hamdele: Tasbih & Muezzin
+**App name:** Hasbele: Tasbih & Muezzin
 
 **Short description:** Tasbih counter, dhikr after prayer and a step-by-step muezzin guide.
 
 **Full description:**
 
-Hamdele brings the tesbihat after prayer, free dhikr and the muezzin's duties together in one app. It is free and made as charity.
+Hasbele brings the tesbihat after prayer, free dhikr and the muezzin's duties together in one app. It is free and made as charity.
 
 Tasbih and dhikr counter
 - Count by tapping anywhere on the screen or with the volume keys.
