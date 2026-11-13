@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Hasbele ekran görüntüsü</title>
+<link rel="stylesheet" href="common.css">
+<script src="shots.js"></script>
+</head>
+<body>
+<div class="pattern"></div>
+<div class="glow"></div>
+<div class="head">
+  <div class="kicker"><img src="../../icon-512.png" alt="">HASBELE</div>
+  <h1></h1>
+  <p class="sub"></p>
+  <div class="chips"></div>
+</div>
+<script>
+// Kullanım: shot.html?id=tr_01
+const id = new URLSearchParams(location.search).get("id") || "tr_01";
+const cfg = SHOTS[id];
+document.documentElement.lang = id.startsWith("en") ? "en" : "tr";
+if (cfg.dark) document.body.classList.add("dark");
+document.querySelector("h1").innerHTML = cfg.h1;
+document.querySelector(".sub").innerHTML = cfg.sub;
+const chips = document.querySelector(".chips");
+(cfg.chips || []).forEach(c => {
+  const el = document.createElement("span");
+  el.className = "chip";
+  if (typeof c === "string") el.textContent = c;
+  else el.innerHTML = `<span class="bead ${c.bead}"></span>${c.text}`;
+  chips.appendChild(el);
+});
+if (!cfg.chips) chips.remove();
+
+// Başlık bloğu telefona taşmasın: gerekirse başlık yazısını küçült.
+function fitHead(limit) {
+  const h1 = document.querySelector("h1");
+  let size = 88;
+  const head = document.querySelector(".head");
+  while (head.getBoundingClientRect().bottom > limit && size > 60) {
+    size -= 2; h1.style.fontSize = size + "px";
+  }
+}
+
+// Telefon: width = dış genişlik (çerçeve dahil). Ekran 1080x2324 (durum çubuğu kırpılmış) oranında.
+function phone({ screen, left, top, width, z }) {
+  const sc = SCREENS[screen];
+  const pad = 14, sw = width - 2 * pad, s = sw / 1080;
+  const ph = document.createElement("div");
+  ph.className = "phone";
+  Object.assign(ph.style, { left: left + "px", top: top + "px", width: width + "px", zIndex: z || 1 });
+  const scr = document.createElement("div");
+  scr.className = "screen";
+  scr.style.width = sw + "px";
+  scr.style.height = Math.round(2324 * s) + "px";
+  scr.style.background = sc.bg;
+  sc.slices.forEach(([y0, y1]) => {
+    const sl = document.createElement("div");
+    sl.className = "slice";
+    sl.style.height = ((y1 - y0) * s) + "px";
+    const img = document.createElement("img");
+    img.src = RAW + sc.src;
+    img.style.marginTop = (-y0 * s) + "px";
+    sl.appendChild(img);
+    scr.appendChild(sl);
+  });
+  ph.appendChild(scr);
+  document.body.appendChild(ph);
+  return ph;
+}
+
+if (cfg.layout === "single") {
+  fitHead(470);
+  // Ekranın altı (jest çubuğu) tuvalin dışında kalır; düğmeler görünür.
+  phone({ screen: cfg.screen, left: (1080 - 696) / 2, top: 500, width: 696 });
+} else if (cfg.layout === "pair") {
+  fitHead(500);
+  phone({ screen: cfg.back, left: 500, top: 540, width: 540, z: 1 });
+  phone({ screen: cfg.front, left: 40, top: 690, width: 540, z: 2 });
+} else if (cfg.layout === "float") {
+  fitHead(470);
+  phone({ screen: cfg.screen, left: (1080 - 696) / 2, top: 500, width: 696 });
+  // Başka bir ekranın üst kısmı (ör. Geçmiş: başlık + "Bugün" kartı) yüzen panel olarak.
+  const sc = SCREENS[cfg.card], [y0, y1] = sc.cardCrop, w = 900, s = w / 1080;
+  const card = document.createElement("div");
+  card.className = "floatcard";
+  Object.assign(card.style, { width: w + "px", height: ((y1 - y0) * s) + "px", left: ((1080 - w) / 2) + "px", top: "1250px" });
+  const img = document.createElement("img");
+  img.src = RAW + sc.src; img.style.marginTop = (-y0 * s) + "px";
+  card.appendChild(img);
+  document.body.appendChild(card);
+}
+</script>
+</body>
+</html>

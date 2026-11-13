@@ -1,0 +1,133 @@
+/* Hasbele mağaza görselleri: ortak stil. Renkler uygulamanın Material 3 paletinden. */
+:root {
+  --primary: #8B4E00;
+  --ink: #2E1A0A;
+  --ink-soft: #6B4A2B;
+  --light-bg: #FFF8F5;
+  --dark-bg: #19120C;
+  --dark-primary: #FFB870;
+  --font: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { width: 1080px; height: 1920px; overflow: hidden; }
+body {
+  position: relative;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  background: linear-gradient(172deg, #FFF7EE 0%, #FDEBD6 52%, #F5D2A6 100%);
+  color: var(--ink);
+}
+body.dark {
+  background: linear-gradient(172deg, #2A1B10 0%, #1E140D 50%, #120C07 100%);
+  color: #FFEBD4;
+}
+
+/* Hafif sekiz köşeli yıldız ağı; üstte belirgin, aşağı doğru kaybolur. */
+.pattern {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%238B4E00' stroke-width='1.6'%3E%3Crect x='52' y='52' width='56' height='56'/%3E%3Crect x='52' y='52' width='56' height='56' transform='rotate(45 80 80)'/%3E%3Ccircle cx='80' cy='80' r='13'/%3E%3Cpath d='M80 40.4V0M80 119.6V160M40.4 80H0M119.6 80H160M52 52L0 0M108 52L160 0M52 108L0 160M108 108L160 160'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 150px 150px;
+  background-position: center -20px;
+  opacity: .09;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 40%, transparent 85%);
+          mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 40%, transparent 85%);
+}
+body.dark .pattern { opacity: .07; filter: brightness(2.6) saturate(1.2); }
+
+.glow {
+  position: absolute; left: 50%; top: 1150px;
+  width: 1500px; height: 1400px; transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(236,160,64,.38), rgba(236,160,64,0));
+}
+body.dark .glow { background: radial-gradient(closest-side, rgba(255,170,80,.20), rgba(255,170,80,0)); }
+
+/* Başlık bloğu */
+.head {
+  position: absolute; left: 80px; right: 80px; top: 92px;
+  text-align: center;
+}
+.kicker {
+  display: inline-flex; align-items: center; gap: 14px;
+  font-size: 28px; font-weight: 700; letter-spacing: .22em;
+  color: var(--primary);
+}
+.kicker img { width: 44px; height: 44px; border-radius: 12px; }
+body.dark .kicker { color: var(--dark-primary); }
+h1 {
+  text-wrap: balance;
+  margin-top: 22px;
+  font-size: 88px; line-height: 1.04; font-weight: 700; letter-spacing: -.015em;
+  color: var(--ink);
+}
+h1 em { font-style: normal; color: var(--primary); }
+body.dark h1 { color: #FFEBD4; }
+body.dark h1 em { color: var(--dark-primary); }
+.sub {
+  text-wrap: balance;
+  margin: 22px auto 0; max-width: 860px;
+  font-size: 40px; line-height: 1.3; font-weight: 400;
+  color: var(--ink-soft);
+}
+body.dark .sub { color: #D9C2A8; }
+
+.chips { margin-top: 28px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 10px 24px; border-radius: 999px;
+  font-size: 30px; font-weight: 600;
+  background: rgba(139,78,0,.10); color: var(--primary);
+}
+body.dark .chip { background: rgba(255,184,112,.12); color: var(--dark-primary); }
+.bead { width: 34px; height: 34px; border-radius: 50%; box-shadow: 0 3px 6px rgba(0,0,0,.35); }
+.bead.amber { background: radial-gradient(circle at 34% 30%, #FFE6AE 0%, #EBB05A 45%, #C27A25 100%); }
+.bead.wood  { background: radial-gradient(circle at 34% 30%, #B4855C 0%, #7A5032 45%, #3E2614 100%); }
+
+/* Telefon çerçevesi */
+.phone {
+  position: absolute;
+  padding: 14px;
+  border-radius: 74px;
+  background: linear-gradient(150deg, #4A3627 0%, #241911 40%, #120C08 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,230,200,.10),
+    0 60px 110px -30px rgba(90,45,0,.55),
+    0 24px 44px -12px rgba(90,45,0,.30);
+}
+body.dark .phone {
+  background: linear-gradient(150deg, #5B4431 0%, #2B1E14 40%, #16100B 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,220,180,.22),
+    0 60px 110px -30px rgba(0,0,0,.8),
+    0 0 60px rgba(255,170,80,.10);
+}
+.screen {
+  position: relative; overflow: hidden;
+  border-radius: 60px;
+  background: var(--light-bg);
+}
+.screen .slice { overflow: hidden; }
+.screen .slice img { display: block; width: 100%; }
+.screen::after { /* ön kamera */
+  content: ""; position: absolute; left: 50%; top: 20px;
+  width: 24px; height: 24px; margin-left: -12px; border-radius: 50%;
+  background: #0B0806; box-shadow: inset 0 0 0 3px #1E1712;
+}
+
+.fade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 520px;
+  background: linear-gradient(180deg, rgba(245,210,166,0) 0%, #F5D2A6 82%);
+}
+
+/* Telefonun üstünde yüzen ekran kesiti */
+.floatcard {
+  position: absolute; z-index: 3; overflow: hidden;
+  border-radius: 44px;
+  background: var(--light-bg);
+  box-shadow:
+    0 0 0 2px rgba(139,78,0,.08),
+    0 50px 90px -20px rgba(90,45,0,.50),
+    0 18px 36px -10px rgba(90,45,0,.30);
+}
+.floatcard img { display: block; width: 100%; }

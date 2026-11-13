@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Hasbele öne çıkan görsel</title>
+<!-- Kullanım: feature.html?lang=tr ya da ?lang=en ; 1024x500 render edilir (render.sh). -->
+<link rel="stylesheet" href="common.css">
+<style>
+  html, body { width: 1024px; height: 500px; }
+  body {
+    background:
+      radial-gradient(ellipse 620px 460px at 790px 270px, rgba(222,140,50,.38), rgba(222,140,50,0) 70%),
+      linear-gradient(120deg, #2C1A0E 0%, #3B2415 55%, #26170C 100%);
+    color: #FFEBD4;
+  }
+  .pattern { opacity: .07; filter: brightness(2.6) saturate(1.2);
+    background-size: 120px 120px;
+    -webkit-mask-image: radial-gradient(ellipse 700px 420px at 30% 40%, #000, transparent 80%);
+            mask-image: radial-gradient(ellipse 700px 420px at 30% 40%, #000, transparent 80%); }
+  .brand { position: absolute; left: 72px; top: 0; bottom: 0; width: 520px;
+    display: flex; flex-direction: column; justify-content: center; }
+  .brand .row { display: flex; align-items: center; gap: 26px; }
+  .brand img { width: 116px; height: 116px; border-radius: 28px;
+    box-shadow: 0 0 0 2px rgba(255,220,180,.18), 0 18px 36px rgba(0,0,0,.45); }
+  .name { font-size: 86px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+  .tag { margin-top: 28px; font-size: 44px; font-weight: 600; color: #FFB870; letter-spacing: -.005em; }
+  .line { margin-top: 14px; font-size: 22px; font-weight: 500; color: #D9C2A8; letter-spacing: .01em; }
+  .beads { position: absolute; left: 0; top: 0; }
+  .phone { transform: rotate(-9deg); transform-origin: 50% 0; }
+</style>
+<script src="shots.js"></script>
+</head>
+<body>
+<div class="pattern"></div>
+<svg class="beads" width="1024" height="500" viewBox="0 0 1024 500"></svg>
+<div class="brand">
+  <div class="row"><img src="../../icon-512.png" alt=""><div class="name">Hasbele</div></div>
+  <div class="tag"></div>
+  <div class="line"></div>
+</div>
+<script>
+const lang = new URLSearchParams(location.search).get("lang") || "tr";
+const T = {
+  tr: { tag: "Tesbih ve Müezzin", line: "Zikirmatik · Tesbihat · Müezzinlik rehberi" },
+  en: { tag: "Tasbih & Muezzin", line: "Dhikr counter · Tesbihat · Muezzin guide" },
+}[lang];
+document.documentElement.lang = lang;
+document.querySelector(".tag").textContent = T.tag;
+document.querySelector(".line").textContent = T.line;
+
+// Telefonun arkasında kavisli bir tesbih dizisi (uygulamanın kehribar boncukları).
+const svg = document.querySelector(".beads");
+const NS = "http://www.w3.org/2000/svg";
+svg.innerHTML = `<defs><radialGradient id="b" cx="34%" cy="30%" r="75%">
+  <stop offset="0" stop-color="#FFE6AE"/><stop offset=".45" stop-color="#EBB05A"/><stop offset="1" stop-color="#B86F1E"/></radialGradient></defs>`;
+const cx = 810, cy = 250, r = 210, pts = [];
+for (let a = 112; a <= 248; a += 12) pts.push([cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)]);
+const path = document.createElementNS(NS, "polyline");
+path.setAttribute("points", pts.map(p => p.join(",")).join(" "));
+Object.assign(path.style, { fill: "none", stroke: "#8A6544", strokeWidth: 3 });
+svg.appendChild(path);
+pts.forEach(([x, y]) => {
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 21);
+  c.setAttribute("fill", "url(#b)");
+  c.style.filter = "drop-shadow(0 4px 6px rgba(0,0,0,.45))";
+  svg.appendChild(c);
+});
+
+// Eğik telefon: 01_tesbih, durum çubuğu kırpılmış.
+const sc = SCREENS.s01, width = 286, pad = 12, sw = width - 2 * pad, s = sw / 1080;
+const ph = document.createElement("div");
+ph.className = "phone";
+Object.assign(ph.style, { left: "630px", top: "58px", width: width + "px", padding: pad + "px", borderRadius: "40px" });
+const scr = document.createElement("div");
+scr.className = "screen";
+Object.assign(scr.style, { width: sw + "px", height: Math.round(2324 * s) + "px", borderRadius: "30px" });
+const sl = document.createElement("div"); sl.className = "slice"; sl.style.height = (2324 * s) + "px";
+const img = document.createElement("img"); img.src = RAW + sc.src; img.style.marginTop = (-100 * s) + "px";
+sl.appendChild(img); scr.appendChild(sl); ph.appendChild(scr); document.body.appendChild(ph);
+const style = document.createElement("style");
+style.textContent = ".screen::after{top:10px;width:12px;height:12px;margin-left:-6px}";
+document.head.appendChild(style);
+</script>
+</body>
+</html>
