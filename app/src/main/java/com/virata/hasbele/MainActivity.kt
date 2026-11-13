@@ -14,6 +14,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalConfiguration
 import com.virata.hasbele.core.domain.model.ThemeMode
 import com.virata.hasbele.core.ui.theme.TesbihatProTheme
 import com.virata.hasbele.navigation.AppNavHost
@@ -35,7 +36,11 @@ class MainActivity : ComponentActivity() {
             }
             LaunchedEffect(settings.theme) { tellSystemTheme(settings.theme) }
             // Sistem çubuklarının simgeleri sistemin değil, seçilen temanın rengine uymalı.
-            DisposableEffect(darkTheme) {
+            // Tema uygulama içinden değişince tellSystemTheme bir uiMode değişikliği doğurur ve sistem
+            // çubuk simgelerini pencere temasına göre yeniden kurar; bu yüzden o değişiklikten sonra
+            // stil yeniden uygulanır. Yoksa yeniden açılışa kadar koyu zeminde koyu simgeler kalır.
+            val uiMode = LocalConfiguration.current.uiMode
+            DisposableEffect(darkTheme, uiMode) {
                 val barStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { darkTheme }
                 enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
                 onDispose {}
