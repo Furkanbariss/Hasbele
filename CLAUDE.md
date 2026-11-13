@@ -184,7 +184,7 @@ Hazır zikirler ilk açılışta `PresetContent`'ten yüklenir. DataStore'daki `
 
 **DataStore**
 
-- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsConsent (UNKNOWN / GRANTED / DENIED), adsConsentAt (rızanın anı), welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
+- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsConsent (UNKNOWN / GRANTED / DENIED), adsConsentAt (rızanın anı), toursSeen (kullanım ipucu gösterilen sayfalar), welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
 - `SessionStore`: aktif adım listesi (zikir id + hedef), stepIndex, count, completed, updatedAt
 
 **Sayımı kaybetmeme kuralı**
@@ -255,6 +255,8 @@ Tüm yazımlar `Dispatchers.IO`'da yapılır; dokunuşun ekrana ve titreşime ya
 - Koşul (`ReviewPolicy`): son 30 günde en az 3 farklı günde sayım yapılmış olmalı ve son denemeden en az 30 gün geçmiş olmalı. Deneme tarihi `ReviewStore`'da tutulur; pencere çıkmasa da deneme sayılır.
 - Google kendi kotasıyla da sınırlar; uygulama Play'den kurulmadıysa pencere hiç çıkmaz. Bu yüzden düğmeyle açılmaz.
 - Hakkında'daki "Uygulamayı değerlendir" satırı pencere yerine Google Play sayfasını açar; her zaman çalışır.
+
+**Kullanım ipuçları** (`core/ui/components/TourOverlay.kt`, `TourHost`): Her sayfanın ipucu o sayfaya ilk girişte bir kez çıkar; hepsi baştan anlatılmaz (Tesbih 4 adım, Zikirler 2, Müezzinlik vakit listesi 2, müezzin akışı 2, Geçmiş 2). Ekran kararır, anlatılan öğe nabız gibi atan bir çerçeveyle vurgulanır, yanında emojili kısa kart (İleri, Geç, Anladım) durur. Katman açıkken alttaki sayfa dokunuş almaz, okurken sayım olmaz; geri tuşu ipucunu bitirir. Görülenler `toursSeen`te; Ayarlar > Yardım > "Kullanım ipuçlarını yeniden göster" hepsini sıfırlar. Öğeler `Modifier.tourTarget(key)` ile işaretlenir; `TourHost` dışında etkisizdir.
 
 **Diyanet'in adı**: Yalnız kaynak olarak geçer (adımların altındaki kaynak satırları, Hakkında, mağaza metni). İlk açılışta ve Hakkında'da "Bu uygulama Diyanet İşleri Başkanlığı'nın resmî uygulaması değildir; dini içerik Diyanet yayınları esas alınarak hazırlanmıştır" yazar. Diyanet logosu kullanılmaz.
 

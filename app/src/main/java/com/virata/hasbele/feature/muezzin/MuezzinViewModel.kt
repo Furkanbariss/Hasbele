@@ -14,6 +14,7 @@ import com.virata.hasbele.core.data.repository.MuezzinRepository
 import com.virata.hasbele.core.data.repository.SessionRepository
 import com.virata.hasbele.core.data.repository.SettingsRepository
 import com.virata.hasbele.core.domain.model.AppSettings
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.domain.muezzin.StepKind
 import com.virata.hasbele.core.input.VolumeKeyDispatcher
 import com.virata.hasbele.core.domain.muezzin.FlowOptions
@@ -57,7 +58,7 @@ data class Resume(val flowId: PrayerFlowId, val stepNumber: Int)
 class MuezzinViewModel(
     private val repository: MuezzinRepository,
     private val sessionRepository: SessionRepository,
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     private val volumeKeys: VolumeKeyDispatcher,
     /** Yalnız vakit listesinde kullanılır; adım adım akışta reklam kodu çalışmaz. */
     val adsController: AdsController,
@@ -209,6 +210,9 @@ class MuezzinViewModel(
             resume = resume,
         )
     }
+
+    /** Sayfanın kullanım ipucu görüldü ya da geçildi; bir daha kendiliğinden çıkmaz. */
+    fun onTourSeen(tour: Tour) = settingsRepository.update { it.withTourSeen(tour) }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

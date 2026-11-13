@@ -18,6 +18,7 @@ import com.virata.hasbele.core.domain.engine.countDelta
 import com.virata.hasbele.core.domain.model.AppSettings
 import com.virata.hasbele.core.domain.model.CounterState
 import com.virata.hasbele.core.domain.model.TesbihatStep
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.domain.model.Zikir
 import com.virata.hasbele.core.feedback.HapticsController
 import com.virata.hasbele.core.feedback.SoundController
@@ -163,6 +164,9 @@ class CounterViewModel(
             lastBead = lastBead(state.steps),
         )
     }
+
+    /** Sayfanın kullanım ipucu görüldü ya da geçildi; bir daha kendiliğinden çıkmaz. */
+    fun onTourSeen(tour: Tour) = settingsRepository.update { it.withTourSeen(tour) }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

@@ -6,6 +6,7 @@ import com.virata.hasbele.core.data.repository.SettingsRepository
 import com.virata.hasbele.core.data.repository.ZikirRepository
 import com.virata.hasbele.core.domain.model.AdsConsent
 import com.virata.hasbele.core.domain.model.DailyCount
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.testing.FakeAdsController
 import com.virata.hasbele.testing.FakeContentVersionStore
 import com.virata.hasbele.testing.FakeDailyCountDao
@@ -230,4 +231,16 @@ class HistoryViewModelTest {
 
             assertFalse(viewModel.reviewDue.value)
         }
+
+    @Test
+    fun `history tip is remembered once seen`() = runTest(mainDispatcher) {
+        settingsStore.update { it.copy(welcomeSeen = true) }
+        val viewModel = createViewModel(repository())
+        assertTrue(viewModel.settings.value.shouldShowTour(Tour.HISTORY))
+
+        viewModel.onTourSeen(Tour.HISTORY)
+        runCurrent()
+
+        assertFalse(viewModel.settings.value.shouldShowTour(Tour.HISTORY))
+    }
 }

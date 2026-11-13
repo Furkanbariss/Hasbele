@@ -1,6 +1,7 @@
 package com.virata.hasbele.feature.history
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,11 +29,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.virata.hasbele.R
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.ui.components.DetailTopBar
 import com.virata.hasbele.core.ui.components.NativeAdSlot
 import com.virata.hasbele.core.ui.components.SectionTitle
+import com.virata.hasbele.core.ui.components.TourHost
+import com.virata.hasbele.core.ui.components.TourStep
 import com.virata.hasbele.core.ui.components.findActivity
 import com.virata.hasbele.core.ui.components.rememberNativeAdSlot
+import com.virata.hasbele.core.ui.components.tourTarget
 import com.virata.hasbele.core.ui.displayTransliteration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -53,15 +58,21 @@ fun HistoryRoute(
             viewModel.onReviewRequested()
         }
     }
-    HistoryScreen(
-        uiState = uiState,
-        onBack = onBack,
-        adSlot = rememberNativeAdSlot(
-            adsController = viewModel.adsController,
-            enabled = settings.adsAllowed,
-            allowConsentForm = true,
-        ),
-    )
+    TourHost(
+        steps = HISTORY_TOUR,
+        show = settings.shouldShowTour(Tour.HISTORY),
+        onDone = { viewModel.onTourSeen(Tour.HISTORY) },
+    ) {
+        HistoryScreen(
+            uiState = uiState,
+            onBack = onBack,
+            adSlot = rememberNativeAdSlot(
+                adsController = viewModel.adsController,
+                enabled = settings.adsAllowed,
+                allowConsentForm = true,
+            ),
+        )
+    }
 }
 
 @Composable
@@ -81,7 +92,7 @@ fun HistoryScreen(
                 .padding(innerPadding),
             contentPadding = PaddingValues(bottom = 16.dp),
         ) {
-            item { TodayCard(uiState) }
+            item { TodayCard(uiState, modifier = Modifier.tourTarget(TOUR_TODAY)) }
             // Reklam yuvaları yalnız kartların arasına girer; yerleri HistoryAdSlots.kt'dedir.
             if (adSlot != null) {
                 item(key = "ad-$HISTORY_TODAY_AD_SLOT", contentType = AD_CONTENT_TYPE) {
@@ -89,7 +100,11 @@ fun HistoryScreen(
                 }
             }
             if (uiState.pastDays.isNotEmpty()) {
-                item { SectionTitle(stringResource(R.string.history_last_30_days)) }
+                item {
+                    Box(modifier = Modifier.tourTarget(TOUR_DAYS)) {
+                        SectionTitle(stringResource(R.string.history_last_30_days))
+                    }
+                }
                 uiState.pastDays.forEachIndexed { index, day ->
                     item(key = day.date.toString()) { DayCard(day) }
                     val slot = historyAdSlotAfterDay(index, uiState.pastDays.size)
@@ -105,9 +120,9 @@ fun HistoryScreen(
 private const val AD_CONTENT_TYPE = "ad"
 
 @Composable
-private fun TodayCard(uiState: HistoryUiState) {
+private fun TodayCard(uiState: HistoryUiState, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
@@ -199,3 +214,11 @@ private fun formatDate(date: LocalDate): String {
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale).format(date)
     }
 }
+
+private const val TOUR_TODAY = "history_today"
+private const val TOUR_DAYS = "history_days"
+
+private val HISTORY_TOUR = listOf(
+    TourStep(TOUR_TODAY, "📊", R.string.tour_history_today_title, R.string.tour_history_today),
+    TourStep(TOUR_DAYS, "🗓️", R.string.tour_history_days_title, R.string.tour_history_days),
+)

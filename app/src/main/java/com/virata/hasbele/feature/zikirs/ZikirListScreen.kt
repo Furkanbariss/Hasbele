@@ -33,12 +33,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.virata.hasbele.R
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.domain.model.Zikir
 import com.virata.hasbele.core.domain.model.ZikirDraft
 import com.virata.hasbele.core.ui.components.DetailTopBar
 import com.virata.hasbele.core.ui.components.NativeAdSlot
 import com.virata.hasbele.core.ui.components.SectionTitle
+import com.virata.hasbele.core.ui.components.TourHost
+import com.virata.hasbele.core.ui.components.TourStep
 import com.virata.hasbele.core.ui.components.rememberNativeAdSlot
+import com.virata.hasbele.core.ui.components.tourTarget
 import com.virata.hasbele.core.ui.displayMeaning
 import com.virata.hasbele.core.ui.displayTransliteration
 
@@ -49,27 +53,33 @@ fun ZikirListRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val settings by viewModel.settings.collectAsState()
-    ZikirListScreen(
-        uiState = uiState,
-        onBack = onBack,
-        onSelectTesbihat = {
-            viewModel.onSelectTesbihat()
-            onBack()
-        },
-        onSelectZikir = { zikir ->
-            viewModel.onSelect(zikir)
-            onBack()
-        },
-        onAdd = viewModel::onAdd,
-        onUpdate = viewModel::onUpdate,
-        onDelete = viewModel::onDelete,
-        // Zikir seçilirken sayım başlamadığı için küçük reklam olabilir; AB onay formu burada açılmaz.
-        adSlot = rememberNativeAdSlot(
-            adsController = viewModel.adsController,
-            enabled = settings.adsAllowed,
-            allowConsentForm = false,
-        ),
-    )
+    TourHost(
+        steps = ZIKIRS_TOUR,
+        show = settings.shouldShowTour(Tour.ZIKIRS),
+        onDone = { viewModel.onTourSeen(Tour.ZIKIRS) },
+    ) {
+        ZikirListScreen(
+            uiState = uiState,
+            onBack = onBack,
+            onSelectTesbihat = {
+                viewModel.onSelectTesbihat()
+                onBack()
+            },
+            onSelectZikir = { zikir ->
+                viewModel.onSelect(zikir)
+                onBack()
+            },
+            onAdd = viewModel::onAdd,
+            onUpdate = viewModel::onUpdate,
+            onDelete = viewModel::onDelete,
+            // Zikir seçilirken sayım başlamadığı için küçük reklam olabilir; AB onay formu burada açılmaz.
+            adSlot = rememberNativeAdSlot(
+                adsController = viewModel.adsController,
+                enabled = settings.adsAllowed,
+                allowConsentForm = false,
+            ),
+        )
+    }
 }
 
 @Composable
@@ -92,7 +102,10 @@ fun ZikirListScreen(
             DetailTopBar(title = stringResource(R.string.screen_zikirs), onBack = onBack)
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { adding = true }) {
+            FloatingActionButton(
+                onClick = { adding = true },
+                modifier = Modifier.tourTarget(TOUR_ADD),
+            ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_add),
                     contentDescription = stringResource(R.string.zikirs_add),
@@ -184,7 +197,8 @@ private fun TesbihatCard(summary: String, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .tourTarget(TOUR_TESBIHAT),
     ) {
         ListItem(
             headlineContent = { Text(stringResource(R.string.zikirs_tesbihat_title)) },
@@ -251,3 +265,11 @@ private fun DeleteDialog(name: String, onConfirm: () -> Unit, onDismiss: () -> U
         },
     )
 }
+
+private const val TOUR_TESBIHAT = "zikirs_tesbihat"
+private const val TOUR_ADD = "zikirs_add"
+
+private val ZIKIRS_TOUR = listOf(
+    TourStep(TOUR_TESBIHAT, "📿", R.string.tour_zikirs_pick_title, R.string.tour_zikirs_pick),
+    TourStep(TOUR_ADD, "➕", R.string.tour_zikirs_add_title, R.string.tour_zikirs_add),
+)

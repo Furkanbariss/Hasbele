@@ -59,10 +59,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.virata.hasbele.R
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.ui.BeadStyle
 import com.virata.hasbele.core.ui.BeadStyles
 import com.virata.hasbele.core.ui.components.DimWindowEffect
 import com.virata.hasbele.core.ui.components.KeepScreenOnEffect
+import com.virata.hasbele.core.ui.components.TourHost
+import com.virata.hasbele.core.ui.components.TourStep
+import com.virata.hasbele.core.ui.components.tourTarget
 import com.virata.hasbele.core.ui.displayTransliteration
 
 /** Bu yüksekliğin altında (yatay telefon) metin ve sayı yan yana dizilir. */
@@ -97,24 +101,31 @@ fun CounterRoute(
         BackHandler { dimmed = false }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        CounterScreen(
-            uiState = uiState,
-            beadStyle = BeadStyles.find(settings.beadStyleId),
-            onTap = viewModel::onTap,
-            onUndo = viewModel::onUndo,
-            onResetStep = viewModel::onResetStep,
-            onResetAll = viewModel::onResetAll,
-            onDim = { dimmed = true },
-            onOpenZikirs = onOpenZikirs,
-            onOpenHistory = onOpenHistory,
-            onOpenSettings = onOpenSettings,
-            onOpenMuezzin = onOpenMuezzin,
-            onOpenAbout = onOpenAbout,
-            showMuezzinReturn = muezzinReturn,
-        )
-        if (dimmed) {
-            DimOverlay(onTap = viewModel::onTap, onExit = { dimmed = false })
+    // İlk girişte kısa kullanım ipucu; karartma açıkken gösterilmez.
+    TourHost(
+        steps = COUNTER_TOUR,
+        show = settings.shouldShowTour(Tour.COUNTER) && !dimmed,
+        onDone = { viewModel.onTourSeen(Tour.COUNTER) },
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            CounterScreen(
+                uiState = uiState,
+                beadStyle = BeadStyles.find(settings.beadStyleId),
+                onTap = viewModel::onTap,
+                onUndo = viewModel::onUndo,
+                onResetStep = viewModel::onResetStep,
+                onResetAll = viewModel::onResetAll,
+                onDim = { dimmed = true },
+                onOpenZikirs = onOpenZikirs,
+                onOpenHistory = onOpenHistory,
+                onOpenSettings = onOpenSettings,
+                onOpenMuezzin = onOpenMuezzin,
+                onOpenAbout = onOpenAbout,
+                showMuezzinReturn = muezzinReturn,
+            )
+            if (dimmed) {
+                DimOverlay(onTap = viewModel::onTap, onExit = { dimmed = false })
+            }
         }
     }
 }
@@ -156,7 +167,7 @@ fun CounterScreen(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     // Uygulamanın asıl amacı olduğu için müezzinlik menünün dışında da durur.
-                    IconButton(onClick = onOpenMuezzin) {
+                    IconButton(onClick = onOpenMuezzin, modifier = Modifier.tourTarget(TOUR_MUEZZIN)) {
                         Icon(
                             painter = painterResource(R.drawable.ic_muezzin),
                             contentDescription = stringResource(R.string.muezzin_title),
@@ -266,13 +277,13 @@ private fun CounterContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                FilledTonalIconButton(onClick = onUndo) {
+                FilledTonalIconButton(onClick = onUndo, modifier = Modifier.tourTarget(TOUR_UNDO)) {
                     Icon(
                         painter = painterResource(R.drawable.ic_undo),
                         contentDescription = stringResource(R.string.action_undo),
                     )
                 }
-                FilledTonalIconButton(onClick = onDim) {
+                FilledTonalIconButton(onClick = onDim, modifier = Modifier.tourTarget(TOUR_DIM)) {
                     Icon(
                         painter = painterResource(R.drawable.ic_dim),
                         contentDescription = stringResource(R.string.action_dim),
@@ -450,7 +461,10 @@ private fun ColumnScope.ZikirLines(arabic: String?, transliteration: String) {
 
 @Composable
 private fun CountLines(count: Int, target: Int?, fontSize: TextUnit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.tourTarget(TOUR_COUNT),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(
             text = count.toString(),
             style = MaterialTheme.typography.displayLarge.copy(
@@ -537,3 +551,16 @@ private fun ResetDialog(
         },
     )
 }
+
+private const val TOUR_COUNT = "counter_count"
+private const val TOUR_UNDO = "counter_undo"
+private const val TOUR_DIM = "counter_dim"
+private const val TOUR_MUEZZIN = "counter_muezzin"
+
+/** Sayaç ilk açılınca: say, geri al, karart, müezzinlik. Gerisini kullanıcı kendisi keşfeder. */
+private val COUNTER_TOUR = listOf(
+    TourStep(TOUR_COUNT, "👆", R.string.tour_counter_tap_title, R.string.tour_counter_tap),
+    TourStep(TOUR_UNDO, "↩️", R.string.tour_counter_undo_title, R.string.tour_counter_undo),
+    TourStep(TOUR_DIM, "🌙", R.string.tour_counter_dim_title, R.string.tour_counter_dim),
+    TourStep(TOUR_MUEZZIN, "🕌", R.string.tour_counter_more_title, R.string.tour_counter_more),
+)

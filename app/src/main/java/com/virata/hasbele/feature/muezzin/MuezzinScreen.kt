@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.virata.hasbele.R
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.domain.muezzin.MuezzinPreferences
 import com.virata.hasbele.core.domain.muezzin.PrayerFlowId
 import com.virata.hasbele.core.domain.muezzin.Recitation
@@ -58,7 +59,10 @@ import com.virata.hasbele.core.ui.components.DetailTopBar
 import com.virata.hasbele.core.ui.components.KeepScreenOnEffect
 import com.virata.hasbele.core.ui.components.NativeAdSlot
 import com.virata.hasbele.core.ui.components.SectionTitle
+import com.virata.hasbele.core.ui.components.TourHost
+import com.virata.hasbele.core.ui.components.TourStep
 import com.virata.hasbele.core.ui.components.rememberNativeAdSlot
+import com.virata.hasbele.core.ui.components.tourTarget
 
 /**
  * Vakit listesinde, rıza verildiyse, seçeneklerin altında tek küçük reklam olur; AB onay formu burada
@@ -80,34 +84,47 @@ fun MuezzinRoute(
     }
     when (val state = uiState) {
         MuezzinUiState.Loading -> Box(modifier = Modifier.fillMaxSize())
-        is MuezzinUiState.Home -> MuezzinHomeScreen(
-            state = state,
-            onBack = onBack,
-            onSelectFlow = viewModel::onSelectFlow,
-            onResume = viewModel::onResume,
-            onTesrikChange = viewModel::onTesrikChange,
-            onBayramMorningChange = viewModel::onBayramMorningChange,
-            // Yalnız bu dalda çağrılır: akışa geçince yuva bırakılır, reklam yok edilir.
-            adSlot = rememberNativeAdSlot(
-                adsController = viewModel.adsController,
-                enabled = settings.adsAllowed,
-                allowConsentForm = false,
-            ),
-        )
+        is MuezzinUiState.Home -> TourHost(
+            steps = MUEZZIN_HOME_TOUR,
+            show = settings.shouldShowTour(Tour.MUEZZIN_HOME),
+            onDone = { viewModel.onTourSeen(Tour.MUEZZIN_HOME) },
+        ) {
+            MuezzinHomeScreen(
+                state = state,
+                onBack = onBack,
+                onSelectFlow = viewModel::onSelectFlow,
+                onResume = viewModel::onResume,
+                onTesrikChange = viewModel::onTesrikChange,
+                onBayramMorningChange = viewModel::onBayramMorningChange,
+                // Yalnız bu dalda çağrılır: akışa geçince yuva bırakılır, reklam yok edilir.
+                adSlot = rememberNativeAdSlot(
+                    adsController = viewModel.adsController,
+                    enabled = settings.adsAllowed,
+                    allowConsentForm = false,
+                ),
+            )
+        }
         is MuezzinUiState.Flow -> {
             KeepScreenOnEffect(enabled = true)
             BackHandler(onBack = viewModel::onCloseFlow)
-            MuezzinFlowScreen(
-                state = state,
-                onClose = viewModel::onCloseFlow,
-                onNext = viewModel::onNext,
-                onPrevious = viewModel::onPrevious,
-                onRestart = viewModel::onRestart,
-                onCountTesbihat = {
-                    viewModel.onCountTesbihat()
-                    onOpenCounter()
-                },
-            )
+            // İpucunun geri tuşu kendi BackHandler'ıyla önce gelir: akış kapanmaz, ipucu biter.
+            TourHost(
+                steps = MUEZZIN_FLOW_TOUR,
+                show = settings.shouldShowTour(Tour.MUEZZIN_FLOW),
+                onDone = { viewModel.onTourSeen(Tour.MUEZZIN_FLOW) },
+            ) {
+                MuezzinFlowScreen(
+                    state = state,
+                    onClose = viewModel::onCloseFlow,
+                    onNext = viewModel::onNext,
+                    onPrevious = viewModel::onPrevious,
+                    onRestart = viewModel::onRestart,
+                    onCountTesbihat = {
+                        viewModel.onCountTesbihat()
+                        onOpenCounter()
+                    },
+                )
+            }
         }
     }
 }
@@ -174,7 +191,11 @@ fun MuezzinHomeScreen(
             item { SectionTitle(stringResource(R.string.muezzin_choose)) }
             items(PrayerFlowId.entries) { id ->
                 ListItem(
-                    modifier = Modifier.clickable { onSelectFlow(id) },
+                    modifier = Modifier
+                        .clickable { onSelectFlow(id) }
+                        .then(
+                            if (id == PrayerFlowId.entries.first()) Modifier.tourTarget(TOUR_PRAYERS) else Modifier,
+                        ),
                     headlineContent = { Text(stringResource(id.nameRes())) },
                     supportingContent = if (id == PrayerFlowId.CUMA && state.isFriday) {
                         { Text(stringResource(R.string.muezzin_today_friday)) }
@@ -185,12 +206,14 @@ fun MuezzinHomeScreen(
             }
             item { SectionTitle(stringResource(R.string.muezzin_section_options)) }
             item {
-                OptionRow(
-                    title = stringResource(R.string.muezzin_tesrik),
-                    hint = stringResource(R.string.muezzin_tesrik_hint),
-                    checked = state.preferences.tesrik,
-                    onChange = onTesrikChange,
-                )
+                Box(modifier = Modifier.tourTarget(TOUR_OPTIONS)) {
+                    OptionRow(
+                        title = stringResource(R.string.muezzin_tesrik),
+                        hint = stringResource(R.string.muezzin_tesrik_hint),
+                        checked = state.preferences.tesrik,
+                        onChange = onTesrikChange,
+                    )
+                }
             }
             item {
                 OptionRow(
@@ -259,7 +282,7 @@ fun MuezzinFlowScreen(
                         Text(stringResource(R.string.muezzin_previous))
                     }
                     val isLast = state.stepIndex == state.steps.lastIndex
-                    Button(onClick = onNext, modifier = Modifier.weight(1f)) {
+                    Button(onClick = onNext, modifier = Modifier.weight(1f).tourTarget(TOUR_NEXT)) {
                         Text(
                             stringResource(
                                 if (isLast) R.string.muezzin_finish else R.string.muezzin_next,
@@ -368,7 +391,10 @@ private fun RecitationContent(recitation: Recitation) {
         }
     }
     if (meanings != null) {
-        TextButton(onClick = { showMeaning = !showMeaning }) {
+        TextButton(
+            onClick = { showMeaning = !showMeaning },
+            modifier = Modifier.tourTarget(TOUR_MEANING),
+        ) {
             Text(
                 stringResource(
                     if (showMeaning) R.string.muezzin_hide_meaning else R.string.muezzin_show_meaning,
@@ -390,3 +416,19 @@ private fun RecitationContent(recitation: Recitation) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
+
+private const val TOUR_PRAYERS = "muezzin_prayers"
+private const val TOUR_OPTIONS = "muezzin_options"
+private const val TOUR_NEXT = "muezzin_next"
+private const val TOUR_MEANING = "muezzin_meaning"
+
+private val MUEZZIN_HOME_TOUR = listOf(
+    TourStep(TOUR_PRAYERS, "🕌", R.string.tour_muezzin_pick_title, R.string.tour_muezzin_pick),
+    TourStep(TOUR_OPTIONS, "🗓️", R.string.tour_muezzin_options_title, R.string.tour_muezzin_options),
+)
+
+/** Anlam düğmesi her adımda yoktur; yoksa kart ortada çıkar. */
+private val MUEZZIN_FLOW_TOUR = listOf(
+    TourStep(TOUR_NEXT, "➡️", R.string.tour_flow_next_title, R.string.tour_flow_next),
+    TourStep(TOUR_MEANING, "📖", R.string.tour_flow_meaning_title, R.string.tour_flow_meaning),
+)

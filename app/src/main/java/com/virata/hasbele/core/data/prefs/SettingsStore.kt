@@ -9,10 +9,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.virata.hasbele.core.domain.model.AdsConsent
 import com.virata.hasbele.core.domain.model.AppSettings
 import com.virata.hasbele.core.domain.model.ThemeMode
+import com.virata.hasbele.core.domain.model.Tour
 import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -63,6 +65,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                     preferences[Keys.ADS_CONSENT_AT] = consentAt
                 }
                 preferences[Keys.WELCOME_SEEN] = updated.welcomeSeen
+                preferences[Keys.TOURS_SEEN] = updated.toursSeen.map { it.name }.toSet()
             }
         } catch (exception: IOException) {
             Log.e(TAG, "Ayarlar yazılamadı", exception)
@@ -83,6 +86,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                 ?: defaults.adsConsent,
             adsConsentAt = this[Keys.ADS_CONSENT_AT],
             welcomeSeen = this[Keys.WELCOME_SEEN] ?: defaults.welcomeSeen,
+            // İleride kaldırılan bir ipucunun adı yok sayılır.
+            toursSeen = this[Keys.TOURS_SEEN].orEmpty()
+                .mapNotNull { name -> Tour.entries.find { it.name == name } }
+                .toSet(),
         )
     }
 
@@ -97,5 +104,6 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         val LEGACY_ADS_ENABLED = booleanPreferencesKey("ads_enabled")
         val ADS_CONSENT_AT = longPreferencesKey("ads_consent_at")
         val WELCOME_SEEN = booleanPreferencesKey("welcome_seen")
+        val TOURS_SEEN = stringSetPreferencesKey("tours_seen")
     }
 }

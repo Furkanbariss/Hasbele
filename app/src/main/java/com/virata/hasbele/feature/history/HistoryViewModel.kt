@@ -14,6 +14,7 @@ import com.virata.hasbele.core.data.repository.SettingsRepository
 import com.virata.hasbele.core.data.repository.ZikirRepository
 import com.virata.hasbele.core.domain.model.AppSettings
 import com.virata.hasbele.core.domain.model.DailyCount
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.domain.model.Zikir
 import com.virata.hasbele.core.domain.review.ReviewPolicy
 import com.virata.hasbele.core.review.ReviewController
@@ -76,7 +77,7 @@ class HistoryViewModel(
     historyRepository: HistoryRepository,
     zikirRepository: ZikirRepository,
     val adsController: AdsController,
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     val reviewController: ReviewController,
     reviewStore: ReviewStore,
     today: LocalDate = LocalDate.now(),
@@ -111,6 +112,9 @@ class HistoryViewModel(
     ) { counts, zikirs ->
         historyUiState(counts, zikirs, today)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), HistoryUiState())
+
+    /** Sayfanın kullanım ipucu görüldü ya da geçildi; bir daha kendiliğinden çıkmaz. */
+    fun onTourSeen(tour: Tour) = settingsRepository.update { it.withTourSeen(tour) }
 
     companion object {
         private const val DAYS_SHOWN = 30L

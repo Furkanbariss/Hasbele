@@ -4,6 +4,7 @@ import com.virata.hasbele.core.data.repository.SettingsRepository
 import com.virata.hasbele.core.domain.model.AdsConsent
 import com.virata.hasbele.core.domain.model.AppSettings
 import com.virata.hasbele.core.domain.model.ThemeMode
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.testing.FakeAdsController
 import com.virata.hasbele.testing.FakeSettingsStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -55,6 +56,18 @@ class SettingsViewModelTest {
 
             assertEquals(expected, store.current)
         }
+    }
+
+    @Test
+    fun `tips can be shown again on every page`() = runTest {
+        val viewModel = viewModel()
+        store.update { it.copy(toursSeen = Tour.entries.toSet()) }
+        runCurrent()
+
+        viewModel.onShowToursAgain()
+        runCurrent()
+
+        assertTrue(store.current.toursSeen.isEmpty())
     }
 
     @Test

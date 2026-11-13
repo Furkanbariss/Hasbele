@@ -14,6 +14,7 @@ import com.virata.hasbele.core.data.repository.SettingsRepository
 import com.virata.hasbele.core.data.repository.ZikirRepository
 import com.virata.hasbele.core.domain.model.AppSettings
 import com.virata.hasbele.core.domain.model.TesbihatStep
+import com.virata.hasbele.core.domain.model.Tour
 import com.virata.hasbele.core.domain.model.Zikir
 import com.virata.hasbele.core.domain.model.ZikirDraft
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,7 +36,7 @@ private fun tesbihatSummary(): String =
 class ZikirsViewModel(
     private val zikirRepository: ZikirRepository,
     private val sessionRepository: SessionRepository,
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     val adsController: AdsController,
 ) : ViewModel() {
 
@@ -69,6 +70,9 @@ class ZikirsViewModel(
     fun onDelete(id: Long) {
         viewModelScope.launch { zikirRepository.delete(id) }
     }
+
+    /** Sayfanın kullanım ipucu görüldü ya da geçildi; bir daha kendiliğinden çıkmaz. */
+    fun onTourSeen(tour: Tour) = settingsRepository.update { it.withTourSeen(tour) }
 
     companion object {
         private const val STOP_TIMEOUT_MILLIS = 5_000L

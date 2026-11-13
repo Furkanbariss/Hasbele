@@ -22,6 +22,8 @@ data class AppSettings(
     val adsConsentAt: Long? = null,
     /** İlk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada durur. */
     val welcomeSeen: Boolean = false,
+    /** Kullanım ipucu gösterilmiş sayfalar; her sayfanın ipucu bir kez çıkar. */
+    val toursSeen: Set<Tour> = emptySet(),
 ) {
     /** Reklam yalnız açık rızayla gösterilir; reddeden ya da cevap vermeyen reklam görmez. */
     val adsAllowed: Boolean get() = adsConsent == AdsConsent.GRANTED
@@ -33,6 +35,11 @@ data class AppSettings(
     /** Ret ya da geri alma: reklam durur, rızanın anı silinir. */
     fun withAdsConsentDenied(): AppSettings =
         copy(adsConsent = AdsConsent.DENIED, adsConsentAt = null)
+
+    /** Sayfanın ipucu yalnız ilk açılış bilgilendirmesinden sonra ve bir kez gösterilir. */
+    fun shouldShowTour(tour: Tour): Boolean = welcomeSeen && tour !in toursSeen
+
+    fun withTourSeen(tour: Tour): AppSettings = copy(toursSeen = toursSeen + tour)
 
     companion object {
         const val DEFAULT_BEAD_STYLE_ID = "amber"

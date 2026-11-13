@@ -65,6 +65,7 @@ fun SettingsRoute(
         onAdsConsentGiven = viewModel::onAdsConsentGiven,
         onAdsConsentDenied = viewModel::onAdsConsentDenied,
         onPrivacyOptions = { viewModel.onPrivacyOptions(view.context.findActivity()) },
+        onShowToursAgain = viewModel::onShowToursAgain,
         adSlot = rememberNativeAdSlot(
             adsController = viewModel.adsController,
             enabled = settings.adsAllowed,
@@ -87,6 +88,7 @@ fun SettingsScreen(
     onAdsConsentGiven: () -> Unit,
     onAdsConsentDenied: () -> Unit,
     onPrivacyOptions: () -> Unit,
+    onShowToursAgain: () -> Unit = {},
     adSlot: NativeAdSlot? = null,
 ) {
     var askAdsConsent by rememberSaveable { mutableStateOf(false) }
@@ -153,6 +155,24 @@ fun SettingsScreen(
                     options = BeadStyles.all.map { it.id to stringResource(it.nameRes) },
                     selected = BeadStyles.find(settings.beadStyleId).id,
                     onSelect = onBeadStyleChange,
+                )
+            }
+            item { SectionTitle(stringResource(R.string.settings_section_help)) }
+            item {
+                ListItem(
+                    modifier = Modifier.clickable(onClick = onShowToursAgain),
+                    headlineContent = { Text(stringResource(R.string.settings_tours_again)) },
+                    supportingContent = {
+                        Text(
+                            stringResource(
+                                if (settings.toursSeen.isEmpty()) {
+                                    R.string.settings_tours_pending
+                                } else {
+                                    R.string.settings_tours_again_hint
+                                },
+                            ),
+                        )
+                    },
                 )
             }
             item { SectionTitle(stringResource(R.string.settings_section_ads)) }

@@ -51,6 +51,9 @@ class SettingsViewModel(
 
     fun onPrivacyOptions(activity: Activity) = adsController.showPrivacyOptions(activity)
 
+    /** Bütün sayfaların kullanım ipuçları bir kez daha gösterilir. */
+    fun onShowToursAgain() = settingsRepository.update { it.copy(toursSeen = emptySet()) }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
