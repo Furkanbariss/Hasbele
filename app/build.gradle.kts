@@ -11,16 +11,17 @@ val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use { load(it) }
 }
 val testAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
-val testBannerUnitId = "ca-app-pub-3940256099942544/9214589741"
+// Google'ın resmi yerel (native) reklam deneme birimi.
+val testNativeUnitId = "ca-app-pub-3940256099942544/2247696110"
 
 android {
-    namespace = "com.furkanbarissonmezisik.tesbihatpro"
+    namespace = "com.virata.hamdele"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.furkanbarissonmezisik.tesbihatpro"
+        applicationId = "com.virata.hamdele"
         minSdk = 26
         targetSdk = 37
         versionCode = 1
@@ -32,7 +33,7 @@ android {
     buildTypes {
         debug {
             manifestPlaceholders["admobAppId"] = testAdMobAppId
-            buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"$testBannerUnitId\"")
+            buildConfigField("String", "ADMOB_NATIVE_UNIT_ID", "\"$testNativeUnitId\"")
             buildConfigField(
                 "String",
                 "UMP_TEST_DEVICE_HASH",
@@ -44,8 +45,8 @@ android {
                 localProperties.getProperty("admob.appId", testAdMobAppId)
             buildConfigField(
                 "String",
-                "ADMOB_BANNER_UNIT_ID",
-                "\"${localProperties.getProperty("admob.bannerUnitId", testBannerUnitId)}\"",
+                "ADMOB_NATIVE_UNIT_ID",
+                "\"${localProperties.getProperty("admob.nativeUnitId", testNativeUnitId)}\"",
             )
             buildConfigField("String", "UMP_TEST_DEVICE_HASH", "\"\"")
             optimization {

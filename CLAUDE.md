@@ -3,6 +3,8 @@
 
 ## Amaç ve kapsam
 
+Uygulamanın adı **Hamdele** (mağaza başlığı "Hamdele: Tesbih ve Müezzin"), paket adı `com.virata.hamdele`. Geliştiricinin Google Play'deki adı "Virata"dır; bu bir mahlastır, şirket değildir. İletişim: virata.software@gmail.com. Eski çalışma adı "Tesbihat Pro" iki mağazada da başka uygulamalarca kullanıldığı için 13 Kasım 2026'da bırakıldı. Proje klasörü, `TesbihatProTheme` gibi iç adlar kullanıcıya görünmediği için değiştirilmedi.
+
 MVP, namaz sonrası tesbihatı ve serbest zikri dokunarak, titreşimle ve ses tuşlarıyla sayan, sayımı asla kaybetmeyen bir Android tesbih uygulamasıdır. Hedef, 8 Şubat 2027'de başlayan Ramazan'dan önce yayında olmaktır.
 
 **MVP'de olanlar**
@@ -12,9 +14,9 @@ MVP, namaz sonrası tesbihatı ve serbest zikri dokunarak, titreşimle ve ses tu
 - Hazır zikirler ve kullanıcının kendi zikri, hedef sayısıyla
 - Ses tuşlarıyla sayma, ekranı açık tutma, karartma modu
 - Günlük geçmiş (zikir başına toplam)
-- Ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, reklamlar (varsayılan kapalı, açık rızayla açılır)
+- Ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, reklam tercihi (KVKK açık rızası)
 - Türkçe ve İngilizce arayüz
-- AdMob banner (yalnız Geçmiş ve Ayarlar ekranında, Ayarlar'dan kapatılabilir); uygulama ücretsizdir, satın alma yoktur
+- Küçük AdMob native reklam kartları (Zikirler, Müezzinlik vakit listesi, Geçmiş, Ayarlar; yalnız açık rızayla); uygulama ücretsizdir, satın alma yoktur
 
 **Bilerek dışarıda bırakılanlar (sonraki sürümler)**
 
@@ -42,7 +44,7 @@ Tek Activity, Jetpack Compose ve MVVM ile tek modüllü bir uygulama; kütüphan
 | Asenkron | Coroutines + Flow | Standart |
 | Ses | `SoundPool` | Düşük gecikmeli tık sesi |
 | Titreşim | `VibrationEffect` | API 26+ |
-| Reklam | Google Mobile Ads (AdMob) + UMP onay SDK'sı | Banner ve AB onayı |
+| Reklam | Google Mobile Ads (AdMob) + UMP onay SDK'sı | Liste içi native reklam ve AB onayı |
 | Değerlendirme | Google Play In-App Review (`com.google.android.play:review`) | Kullanıcının isteği; Play'den çıkmadan puan verme. `review-ktx` R8'de eksik sınıf hatası verdiği için kullanılmaz |
 | Test | JUnit + kotlinx-coroutines-test | Motor ve ViewModel testleri |
 | minSdk | 26 (Android 8.0) | `VibrationEffect` ve `java.time` doğrudan kullanılır |
@@ -59,7 +61,7 @@ Tek `app` modülü, özellik bazlı paketler; `core/domain` ve `core/content` An
 Dokunuş ekrana ve titreşime aynı karede yansır; diske yazma 300 ms gecikmeyle arka planda yapılır, bu yüzden hızlı sayımda takılma olmaz.
 
 ```
-app/src/main/java/com/furkanbarissonmezisik/tesbihatpro/
+app/src/main/java/com/virata/hamdele/
 ├── TesbihApp.kt              // Application; AppContainer'ı kurar
 ├── MainActivity.kt           // tek Activity; ses tuşlarını yönlendirir
 ├── di/
@@ -84,7 +86,7 @@ app/src/main/java/com/furkanbarissonmezisik/tesbihatpro/
 │   ├── input/                // VolumeKeyDispatcher
 │   ├── ads/                  // AdsController (arayüz), AdMobAdsController, ConsentManager
 │   ├── review/               // ReviewController (arayüz), PlayReviewController
-│   └── ui/                   // theme/, components/ (BannerAd vb.)
+│   └── ui/                   // theme/, components/ (NativeAdSlot, AdsConsentDialog vb.)
 └── feature/
     ├── counter/              // CounterScreen, CounterViewModel, TesbihBeads (Canvas), DimOverlay
     ├── zikirs/               // ZikirListScreen, ZikirEditDialog, ZikirsViewModel
@@ -182,7 +184,7 @@ Hazır zikirler ilk açılışta `PresetContent`'ten yüklenir. DataStore'daki `
 
 **DataStore**
 
-- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsEnabled, adsConsentAt (reklam rızasının anı), welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
+- `SettingsStore`: soundEnabled, hapticsEnabled, volumeKeysEnabled, keepScreenOn, theme (sistem/açık/koyu), beadStyleId, adsConsent (UNKNOWN / GRANTED / DENIED), adsConsentAt (rızanın anı), welcomeSeen (ilk açılış bilgilendirmesi okundu; ayar değildir ama açılışta hazır olsun diye burada)
 - `SessionStore`: aktif adım listesi (zikir id + hedef), stepIndex, count, completed, updatedAt
 
 **Sayımı kaybetmeme kuralı**
@@ -202,12 +204,12 @@ Tüm yazımlar `Dispatchers.IO`'da yapılır; dokunuşun ekrana ve titreşime ya
 
 | Ekran | İçerik | Reklam |
 | --- | --- | --- |
-| İlk açılış bilgilendirmesi | Tek ekran: tesbih, müezzinlik, "Diyanet'in resmî uygulaması değildir" notu, gizlilik ve reklam; "Anladım, başla" | Yok |
+| İlk açılış bilgilendirmesi | Tek ekran: tesbih, müezzinlik, "Diyanet'in resmî uygulaması değildir" notu, gizlilik ve reklam; "Anladım, başla", ardından bir kez KVKK reklam rızası | Yok |
 | Tesbih (başlangıç) | Boncuklar, büyük sayı, adımın Arapçası ve okunuşu, adım göstergesi (1/3), geri al, sıfırla, karartma düğmesi | Yok |
-| Zikirler | En üstte "Namaz sonrası tesbihat", altında hazır ve kendi zikirlerin; ekle, düzenle, sil (hazırlar hariç) | Yok |
-| Müezzinlik (üst bardaki minare ikonu) | Vakit listesi, teşrik ve bayram sabahı seçenekleri; seçilen vaktin adım adım akışı (yönlendirme, Arapça, okunuş, meal, kaynak; İleri/Geri). Yarıda kalan akış açılışta kalınan adımdan sürer. Tesbihat adımındaki "Tesbihatı say" Tesbih ekranını tesbihatla sıfırdan açar (`requestSteps(..., restart = true)`); devir sürdükçe Tesbih ekranının altında "Müezzin akışına dön" görünür, tesbihat bittiyse akış sonraki adımdan sürer | Yok |
-| Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Banner (yalnız reklamlar açıksa) |
-| Ayarlar | Yalnız ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklamları göster (açarken rıza diyaloğu), gizlilik seçenekleri | Banner (yalnız reklamlar açıksa) |
+| Zikirler | En üstte "Namaz sonrası tesbihat", altında hazır ve kendi zikirlerin; ekle, düzenle, sil (hazırlar hariç) | Native kart (rızayla) |
+| Müezzinlik (üst bardaki minare ikonu) | Vakit listesi, teşrik ve bayram sabahı seçenekleri; seçilen vaktin adım adım akışı (yönlendirme, Arapça, okunuş, meal, kaynak; İleri/Geri). Yarıda kalan akış açılışta kalınan adımdan sürer. Tesbihat adımındaki "Tesbihatı say" Tesbih ekranını tesbihatla sıfırdan açar (`requestSteps(..., restart = true)`); devir sürdükçe Tesbih ekranının altında "Müezzin akışına dön" görünür, tesbihat bittiyse akış sonraki adımdan sürer | Yalnız vakit listesinde native kart (rızayla); adım akışında yok |
+| Geçmiş | Bugünün özeti, son 30 gün, gün başına zikir toplamları; koşullar uyunca Google Play değerlendirme penceresi | Native kart (rızayla) |
+| Ayarlar | Yalnız ayarlar: ses, titreşim, ses tuşları, ekranı açık tut, tema, tesbih görünümü, reklam tercihi (rıza diyaloğunu açar), gizlilik seçenekleri | Native kart (rızayla) |
 | Hakkında (menüden) | Uygulamanın amacı, müezzinlik rehberi, dini içerik ve kaynaklar (Diyanet notu), gizlilik ve gizlilik politikası, uygulamayı değerlendir, iletişim, açık kaynak lisansları, sürüm | Yok |
 
 **Tesbih boncukları (`TesbihBeads`)**
@@ -258,28 +260,32 @@ Tüm yazımlar `Dispatchers.IO`'da yapılır; dokunuşun ekrana ve titreşime ya
 
 ## Reklam
 
-Uygulama ücretsizdir ve hayır için yapılır; satın alma yoktur. Tek gelir Geçmiş ve Ayarlar ekranındaki banner'dır.
+Uygulama ücretsizdir ve hayır için yapılır; satın alma yoktur. Tek gelir, liste ekranlarındaki küçük AdMob native reklam kartlarıdır. 13 Kasım 2026'da kullanıcı reklamları açıp kapatan anahtarı kaldırttı ve reklamı Zikirler ile Müezzinlik vakit listesine de genişletti.
 
-**Reklamlar varsayılan kapalı, açık rızayla açılır**: Amaç kâr değildir; reklamlar kapalı gelir, uygulamayı desteklemek isteyen Ayarlar'daki "Reklamları göster" anahtarıyla açar. Anahtarı açmak KVKK açık rıza diyaloğunu getirir: aydınlatma ve açık rıza ayrı başlıkta durur (İlke Kararı 2026/347), "Kabul ediyorum" ve "Reddediyorum" eşit ağırlıktadır, ret hiçbir özelliği kısıtlamaz. Kabulde rızanın anı (`adsConsentAt`) cihazda saklanır; anahtarı kapatmak rızayı geri almaktır, kayıt silinir. Kapalıyken banner kaldırılır; onay formu, SDK başlatma ve reklam isteği çalışmaz.
+**Nerede**
 
-**Kişiselleştirme yok**: Reklam isteği her zaman `npa=1` ile kişiselleştirilmemiş gider. Dini bir uygulamanın kullanımı inancı belli edebilir (KVKK md. 6 özel nitelikli veri).
+- Zikirler: hazır zikirlerden sonra bir kart; "Zikirlerim" 5 veya daha fazla satırsa ikinci kart (`ZikirsAdSlots`).
+- Müezzinlik: yalnız vakit listesinde, seçeneklerin altında bir kart. Adım adım akış ekranında reklam yoktur.
+- Geçmiş: "Bugün" kartından sonra bir kart, sonra her 5 günde bir; en fazla 3 (`HistoryAdSlots`).
+- Ayarlar: listenin sonunda, düğmelerden 24dp uzakta tek kart.
+- Tesbih sayacı, müezzin adım akışı, Hakkında ve ilk açılışta reklam kodu hiç çalışmaz. Tam ekran (interstitial) reklam yoktur.
+- Kartlar küçüktür (yaklaşık 72dp) ve "Reklam" etiketlidir; AdChoices simgesini SDK çizer. Video için MediaView yoktur; AdMob konsolunda native birim yalnız görsel reklama ayarlanır.
 
-**İbadet kuralı**: İbadet sırasında açılabilecek ekranlarda (Tesbih, Zikirler, ileride müezzin modu) reklam olmaz. Bu ekranlarda reklam kodu hiç çalışmaz, reklam için ağ trafiği de oluşmaz; yeni ekran eklerken bu soru sorulur.
+**Rıza (KVKK)**
 
-**Onay ve başlatma**
+- İlk açılışta "Anladım, başla"dan sonra bir kez KVKK diyaloğu çıkar (`core/ui/components/AdsConsentDialog`): aydınlatma ve açık rıza ayrı başlıktadır (İlke Kararı 2026/347), kabul ve ret eşit ağırlıktadır. Kabulde `adsConsent = GRANTED` ve `adsConsentAt` saklanır, aynı adımda UMP çalışır (AEA'da form gerekiyorsa orada çıkar), sonra sayaca geçilir. Retle `DENIED` saklanır, reklam SDK'sı hiç başlamaz, her özellik çalışır. Diyaloğu kapatmak cevap sayılmaz.
+- Ayarlar'daki "Reklam tercihi" satırı aynı diyaloğu açar; rıza verilir ya da geri alınır (ret kaydı siler).
+- Rıza diyaloğu ve UMP formu Zikirler ve Müezzinlik'te hiç açılmaz; gerekirse yalnız Geçmiş ve Ayarlar'da. Rıza yoksa reklam yuvası hiç çizilmez, istek yapılmaz.
+- Reklam isteği her zaman `npa=1` ile kişiselleştirilmemiş gider: dini bir uygulamanın kullanımı inancı belli edebilir (KVKK md. 6).
+- Veri sorumlusu metinlerde "Virata" (geliştiricinin Google Play'deki adı, şirket değil) ve virata.software@gmail.com olarak geçer; geliştirici adının görünmesini istemiyor. KVKK md. 10 gerçek kişi için kimlik ister; bu bilinen ve kullanıcıya söylenmiş bir risktir.
 
-- `ConsentManager` (UMP) uygulama açılışında değil, ilk reklamlı ekrana (Geçmiş veya Ayarlar) girişte çalışır: onay bilgisini günceller, gerekiyorsa formu gösterir. Form açılışta çıksaydı ibadet sırasında Tesbih ekranını kapatırdı. `canRequestAds` true olmadan reklam isteği yapılmaz.
-- `MobileAds` onaydan sonra arka planda başlatılır.
-- Ayarlarda, UMP gerektiriyorsa ve reklamlar açıksa "Gizlilik seçenekleri" girişi gösterilir.
+**Kimlikler**
 
-**Banner**
-
-- Uyarlanabilir (adaptive) banner (`AdSize.getLargeAnchoredAdaptiveBannerAdSize`), yalnızca Geçmiş ve Ayarlar ekranlarının altında.
-- Debug derlemede yalnızca Google'ın resmi test reklam birimi ID'leri kullanılır. Gerçek App ID ve birim ID'leri `local.properties`'ten (`admob.appId`, `admob.bannerUnitId`) okunup yalnız release derlemesine manifest placeholder / `BuildConfig` ile verilir; repoya girmez. Anahtarlar yoksa release de test kimlikleriyle derlenir, yayından önce mutlaka girilmeli.
+- Debug'da yalnız Google'ın test kimlikleri kullanılır (native test birimi `ca-app-pub-3940256099942544/2247696110`). Gerçek App ID ve native birim ID'si `local.properties`'ten (`admob.appId`, `admob.nativeUnitId`) okunup yalnız release'e manifest placeholder / `BuildConfig` ile verilir; repoya girmez. Anahtarlar yoksa release de test kimlikleriyle derlenir, yayından önce mutlaka girilmeli.
 - AB onay formunu denemek için `local.properties`'e `ump.testDeviceHash=<logcat'teki cihaz kimliği>` eklenir; yalnız debug'da etkilidir, denemeden sonra silinir.
 - Kendi gerçek reklamına tıklamak AdMob hesabını riske atar; geliştirmede her zaman test ID.
 
-**Kod dışında, AdMob konsolunda**: kumar, alkol ve flört gibi hassas kategorileri engelle. Uygulama "çocuklara yönelik değil" olarak işaretlenir.
+**Kod dışında**: AdMob konsolunda kumar, alkol ve flört gibi hassas kategorileri engelle. Uygulama "çocuklara yönelik değil" olarak işaretlenir. Gizlilik politikası Google Sites'ta durur; app-ads.txt orada barındırılamaz (`docs/google-sites-kurulum.md`).
 
 ## Uygulama fazları
 
@@ -320,7 +326,7 @@ Claude Code her seferinde tek faz uygular; her faz derlenen, çalışan bir uygu
 Bu bölüm Claude Code'a doğrudan talimattır; dosya proje kökünde `CLAUDE.md` olarak durduğu için her oturumda okunur.
 
 - Her seferinde yalnızca istenen fazı uygula. Faz sonunda `./gradlew assembleDebug` ve `./gradlew test` geçmeli; ardından kısa bir özet ver ve dur.
-- İbadet sırasında açılabilecek ekranlara reklam veya reklamla ilgili kesinti koyma.
+- Tesbih sayacına ve müezzin adım akışına reklam koyma; hiçbir ekranda reklamla ilgili kesinti (pencere, tam ekran reklam) olmasın.
 - Bu dokümanda olmayan bir kütüphane ekleme; gerekiyorsa önce sor.
 - Bağımlılıkları yalnızca `gradle/libs.versions.toml` üzerinden ekle. Emin olmadığın bir sürümü uydurma, sor.
 - `core/domain` ve `core/content` içinde `android.*` veya `androidx.*` import'u olmaz.
@@ -372,13 +378,14 @@ Müezzin modu, saat uygulaması ve yeni tesbih modelleri için MVP'de ek kod yaz
 
 Bunlar kod dışı işlerdir ve senin yapman gerekir; hedef, Ramazan'dan önce sıralama toplamak için Jan 15, 2027 tarihinde yayında olmak.
 
-- [ ] Paket adı kesinleşti (Play'de sonradan değiştirilemez)
+- [x] Paket adı kesinleşti: `com.virata.hamdele` (Play'de sonradan değiştirilemez)
 - [ ] Hazır zikir metinleri Diyanet kaynaklarından kontrol edildi
 - [ ] Müezzin metinleri (özellikle elle yazılan Arapçalar) bir hoca ya da müftülükçe kontrol edildi (`docs/muezzin-icerik-kaynaklari.md`)
 - [ ] Diyanet'in uzun meallerini (örn. Kur'an Yolu meali, İlmihal'deki dua anlamları) uygulamaya koymak istersen Dini Yayınlar Dairesi'nden yazılı izin alındı. Şu anki içerik izin gerektirmez: Arapça metinler ve resmî genelgeler telife konu değil, uzun mealler konmadı, yalnız kaynakları gösteriliyor. Diyanet'in adı yalnız kaynak olarak geçer, resmî uygulama izlenimi verilmez
 - [ ] AdMob: gerçek ID'ler yalnız release derlemesinde; hassas kategoriler engellendi
 - [ ] UMP onay formu AB bölgesi simülasyonuyla (debug geography) test edildi
-- [ ] `docs/gizlilik-politikasi.md` herkese açık bir adreste yayında (PDF olmaz); adres Play Console'a girildi. Metin değişirse uygulamadaki `privacy_policy_text` de değişir
+- [ ] Play'de "Web sitesi" `https://furkanbariss.github.io`; oradaki app-ads.txt aynı AdMob hesabı için zaten yayında (Google Sites olmaz; bkz. `docs/google-sites-kurulum.md`)
+- [ ] `docs/gizlilik-politikasi.md` herkese açık bir adreste (`furkanbariss.github.io/hamdele/privacy.html` ya da Google Sites) yayında (PDF olmaz); adres Play Console'a girildi. Metin değişirse uygulamadaki `privacy_policy_text` de değişir
 - [ ] Data safety formu reklam SDK'sının topladığı verilere göre dolduruldu (`docs/play-data-safety.md`)
 - [ ] Hedef kitle: çocuklara yönelik değil; içerik derecelendirme anketi tamamlandı
 - [ ] Kapalı test: 13 Kasım 2023'ten sonra açılmış kişisel hesapta en az 12 kullanıcıyla 14 gün; çökme ve sayım kaybı kontrol edildi
